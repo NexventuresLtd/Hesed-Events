@@ -11,7 +11,7 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { dispatch } = useApp();
+  const { dispatch, loadInitialData } = useApp();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,6 +39,9 @@ export function Login() {
           role: response.user.role,
         },
       });
+
+      // Load initial data after successful login
+      await loadInitialData();
 
       // Navigate to dashboard
       navigate("/dashboard");

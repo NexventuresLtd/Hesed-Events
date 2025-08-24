@@ -44,19 +44,22 @@ export function Chat() {
 
       // Convert API messages to frontend format and add them to app context
       if (fetchedMessages) {
-        const convertedMessages: ChatMessage[] = fetchedMessages.map((msg: any) => ({
-          id: msg.id.toString(),
-          senderId: msg.sender.toString(),
-          senderName: msg.sender_name || 'Unknown User',
-          senderRole: msg.sender_role || 'employee',
-          content: msg.message,
-          timestamp: msg.timestamp,
-          chatType: activeTab,
-          recipientId: activeTab === "private" ? selectedUser || undefined : undefined,
-        }));
+        const convertedMessages: ChatMessage[] = fetchedMessages.map(
+          (msg: any) => ({
+            id: msg.id.toString(),
+            senderId: msg.sender.toString(),
+            senderName: msg.sender_name || "Unknown User",
+            senderRole: msg.sender_role || "employee",
+            content: msg.message,
+            timestamp: msg.timestamp,
+            chatType: activeTab,
+            recipientId:
+              activeTab === "private" ? selectedUser || undefined : undefined,
+          })
+        );
 
         // Add each message individually since we don't have bulk actions
-        convertedMessages.forEach(message => {
+        convertedMessages.forEach((message) => {
           if (activeTab === "group") {
             dispatch({ type: "ADD_GROUP_MESSAGE", payload: message });
           } else {
