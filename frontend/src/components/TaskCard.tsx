@@ -14,7 +14,12 @@ interface TaskCardProps {
   isDragging?: boolean;
 }
 
-export function TaskCard({ task, onClick, onDragStart, isDragging }: TaskCardProps) {
+export function TaskCard({
+  task,
+  onClick,
+  onDragStart,
+  isDragging,
+}: TaskCardProps) {
   const getStatusColor = (status: Task["status"]) => {
     switch (status) {
       case "initial":

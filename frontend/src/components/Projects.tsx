@@ -91,13 +91,16 @@ export function Projects() {
     setDragOverColumn(null);
   };
 
-  const handleDrop = async (e: React.DragEvent, newStatus: "initial" | "in_progress" | "completed") => {
+  const handleDrop = async (
+    e: React.DragEvent,
+    newStatus: "initial" | "in_progress" | "completed"
+  ) => {
     e.preventDefault();
     setDragOverColumn(null);
-    
+
     const taskId = e.dataTransfer.getData("text/plain");
-    const task = state.tasks.find(t => t.id === taskId);
-    
+    const task = state.tasks.find((t) => t.id === taskId);
+
     if (!task || task.status === newStatus) {
       setDraggedTask(null);
       return;
@@ -113,7 +116,8 @@ export function Projects() {
       // Update progress based on status
       let newProgress = task.progress;
       if (newStatus === "initial") newProgress = 0;
-      else if (newStatus === "in_progress" && newProgress === 0) newProgress = 50;
+      else if (newStatus === "in_progress" && newProgress === 0)
+        newProgress = 50;
       else if (newStatus === "completed") newProgress = 100;
 
       // Update task via API
@@ -369,12 +373,14 @@ export function Projects() {
             </div>
           )}
 
-        {selectedProject && 
-          (state.user?.role === "admin" || state.user?.role === "supervisor") && (
+        {selectedProject &&
+          (state.user?.role === "admin" ||
+            state.user?.role === "supervisor") && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-green-700 text-sm">
-                🎯 <strong>Drag & Drop:</strong> Drag tasks between columns to change their status. 
-                You can also click on any column to create new tasks or click existing tasks to edit them.
+                🎯 <strong>Drag & Drop:</strong> Drag tasks between columns to
+                change their status. You can also click on any column to create
+                new tasks or click existing tasks to edit them.
               </p>
             </div>
           )}
@@ -384,7 +390,9 @@ export function Projects() {
           {/* Initial Column */}
           <div
             className={`bg-white rounded-lg border border-muted/20 p-4 transition-all hover:bg-gray-50 cursor-pointer ${
-              dragOverColumn === "initial" ? "bg-primary/10 border-primary scale-105" : ""
+              dragOverColumn === "initial"
+                ? "bg-primary/10 border-primary scale-105"
+                : ""
             }`}
             onClick={() => handleColumnClick("initial")}
             onDragOver={(e) => handleDragOver(e, "initial")}
@@ -414,11 +422,14 @@ export function Projects() {
                   isDragging={draggedTask?.id === task.id}
                 />
               ))}
-              {dragOverColumn === "initial" && tasksByStatus.initial.length > 0 && (
-                <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
-                  <p className="text-primary font-medium text-center">Drop task here to move to Initial</p>
-                </div>
-              )}
+              {dragOverColumn === "initial" &&
+                tasksByStatus.initial.length > 0 && (
+                  <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                    <p className="text-primary font-medium text-center">
+                      Drop task here to move to Initial
+                    </p>
+                  </div>
+                )}
               {tasksByStatus.initial.length === 0 && (
                 <div className="text-center py-8 text-muted">
                   <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
@@ -432,7 +443,9 @@ export function Projects() {
                     )}
                   {dragOverColumn === "initial" && (
                     <div className="mt-4 p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
-                      <p className="text-primary font-medium">Drop task here to move to Initial</p>
+                      <p className="text-primary font-medium">
+                        Drop task here to move to Initial
+                      </p>
                     </div>
                   )}
                 </div>
@@ -443,7 +456,9 @@ export function Projects() {
           {/* In Progress Column */}
           <div
             className={`bg-white rounded-lg border border-muted/20 p-4 transition-all hover:bg-gray-50 cursor-pointer ${
-              dragOverColumn === "in_progress" ? "bg-primary/10 border-primary scale-105" : ""
+              dragOverColumn === "in_progress"
+                ? "bg-primary/10 border-primary scale-105"
+                : ""
             }`}
             onClick={() => handleColumnClick("in_progress")}
             onDragOver={(e) => handleDragOver(e, "in_progress")}
@@ -473,11 +488,14 @@ export function Projects() {
                   isDragging={draggedTask?.id === task.id}
                 />
               ))}
-              {dragOverColumn === "in_progress" && tasksByStatus.in_progress.length > 0 && (
-                <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
-                  <p className="text-primary font-medium text-center">Drop task here to move to In Progress</p>
-                </div>
-              )}
+              {dragOverColumn === "in_progress" &&
+                tasksByStatus.in_progress.length > 0 && (
+                  <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                    <p className="text-primary font-medium text-center">
+                      Drop task here to move to In Progress
+                    </p>
+                  </div>
+                )}
               {tasksByStatus.in_progress.length === 0 && (
                 <div className="text-center py-8 text-muted">
                   <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
@@ -491,7 +509,9 @@ export function Projects() {
                     )}
                   {dragOverColumn === "in_progress" && (
                     <div className="mt-4 p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
-                      <p className="text-primary font-medium">Drop task here to move to In Progress</p>
+                      <p className="text-primary font-medium">
+                        Drop task here to move to In Progress
+                      </p>
                     </div>
                   )}
                 </div>
@@ -502,7 +522,9 @@ export function Projects() {
           {/* Completed Column */}
           <div
             className={`bg-white rounded-lg border border-muted/20 p-4 transition-all hover:bg-gray-50 cursor-pointer ${
-              dragOverColumn === "completed" ? "bg-primary/10 border-primary scale-105" : ""
+              dragOverColumn === "completed"
+                ? "bg-primary/10 border-primary scale-105"
+                : ""
             }`}
             onClick={() => handleColumnClick("completed")}
             onDragOver={(e) => handleDragOver(e, "completed")}
@@ -532,11 +554,14 @@ export function Projects() {
                   isDragging={draggedTask?.id === task.id}
                 />
               ))}
-              {dragOverColumn === "completed" && tasksByStatus.completed.length > 0 && (
-                <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
-                  <p className="text-primary font-medium text-center">Drop task here to move to Completed</p>
-                </div>
-              )}
+              {dragOverColumn === "completed" &&
+                tasksByStatus.completed.length > 0 && (
+                  <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                    <p className="text-primary font-medium text-center">
+                      Drop task here to move to Completed
+                    </p>
+                  </div>
+                )}
               {tasksByStatus.completed.length === 0 && (
                 <div className="text-center py-8 text-muted">
                   <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
@@ -550,7 +575,9 @@ export function Projects() {
                     )}
                   {dragOverColumn === "completed" && (
                     <div className="mt-4 p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
-                      <p className="text-primary font-medium">Drop task here to move to Completed</p>
+                      <p className="text-primary font-medium">
+                        Drop task here to move to Completed
+                      </p>
                     </div>
                   )}
                 </div>

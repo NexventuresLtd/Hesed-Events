@@ -20,7 +20,7 @@ export interface Project {
   description: string;
   createdAt: string;
   createdBy: string;
-  status: 'active' | 'completed' | 'paused';
+  status: 'active' | 'completed' | 'planning' | 'on_hold';
   tasks: Task[];
 }
 

@@ -2,16 +2,7 @@ import { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import { UserModal } from "./UserModal";
 import { apiService } from "../services/api";
-import {
-  Users,
-  Plus,
-  Edit,
-  Trash2,
-  Search,
-  UserCheck,
-  MoreVertical,
-  Loader,
-} from "lucide-react";
+import { Users, Plus, Edit, Trash2, Search, UserCheck } from "lucide-react";
 import type { User } from "../types";
 
 export function UsersPage() {
@@ -23,8 +14,6 @@ export function UsersPage() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Load users from API on component mount
   useEffect(() => {
@@ -33,28 +22,25 @@ export function UsersPage() {
 
   const loadUsers = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
       const fetchedUsers = await apiService.getUsers();
-      
+
       // Convert API users to frontend format
-      const convertedUsers: User[] = (fetchedUsers as any)?.results?.map((user: any) => ({
-        id: user.id.toString(),
-        name: `${user.first_name} ${user.last_name}`.trim() || user.username,
-        email: user.email,
-        role: user.role,
-        institutionId: user.institution?.toString() || undefined,
-        institutionName: user.institution_name || undefined,
-      }));
-      
+      const convertedUsers: User[] = (fetchedUsers as any)?.results?.map(
+        (user: any) => ({
+          id: user.id.toString(),
+          name: `${user.first_name} ${user.last_name}`.trim() || user.username,
+          email: user.email,
+          role: user.role,
+          institutionId: user.institution?.toString() || undefined,
+          institutionName: user.institution_name || undefined,
+        })
+      );
+
       setUsers(convertedUsers);
     } catch (err) {
       console.error("Error loading users:", err);
-      setError("Failed to load users");
       // Fallback to current user if API fails
       setUsers(state.user ? [state.user] : []);
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -29,21 +29,41 @@ export function Chat() {
   const loadMessages = async () => {
     try {
       setIsLoading(true);
-      let messages;
+      let fetchedMessages;
 
       if (activeTab === "group") {
         // Load group messages (project-based)
-        messages = await apiService.getChatMessages();
+        fetchedMessages = await apiService.getChatMessages();
       } else if (selectedUser) {
         // Load private messages with selected user
-        messages = await apiService.getChatMessages(
+        fetchedMessages = await apiService.getChatMessages(
           undefined,
           parseInt(selectedUser)
         );
       }
 
-      // Note: You would need to update the app context to handle loading chat messages
-      // For now, we'll keep the existing messages
+      // Convert API messages to frontend format and add them to app context
+      if (fetchedMessages) {
+        const convertedMessages: ChatMessage[] = fetchedMessages.map((msg: any) => ({
+          id: msg.id.toString(),
+          senderId: msg.sender.toString(),
+          senderName: msg.sender_name || 'Unknown User',
+          senderRole: msg.sender_role || 'employee',
+          content: msg.message,
+          timestamp: msg.timestamp,
+          chatType: activeTab,
+          recipientId: activeTab === "private" ? selectedUser || undefined : undefined,
+        }));
+
+        // Add each message individually since we don't have bulk actions
+        convertedMessages.forEach(message => {
+          if (activeTab === "group") {
+            dispatch({ type: "ADD_GROUP_MESSAGE", payload: message });
+          } else {
+            dispatch({ type: "ADD_PRIVATE_MESSAGE", payload: message });
+          }
+        });
+      }
     } catch (error) {
       console.error("Error loading messages:", error);
     } finally {
