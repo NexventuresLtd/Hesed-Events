@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #97aa1a;      /* Your bright green-yellow */
+  --color-background: #ffffff;   /* White background */
+  --color-text: #000000;         /* Black text */
+  --color-muted: #a0a0a0;        /* Gray for muted text or borders */
+  --color-accent: #b4c556;       /* Slightly darker accent */
+}
+
+.dark {
+  --color-primary: #aabb33;      /* A softer green for dark bg */
+  --color-background: #121212;   /* Very dark background */
+  --color-text: #f5f5f5;         /* Near-white text */
+  --color-muted: #555555;        /* Dark gray for muted elements */
+  --color-accent: #cddc39;       /* Brighter accent */
+}
