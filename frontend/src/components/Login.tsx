@@ -134,7 +134,7 @@ export function Login() {
             <p>Demo accounts:</p>
             <div className="mt-2 space-y-1">
               <p>
-                <strong>Admin:</strong> admin / admin123
+                <strong>Admin:</strong> admin / password
               </p>
               <p>
                 <strong>Supervisor:</strong> jane / password123
