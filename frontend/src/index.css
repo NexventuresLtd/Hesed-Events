@@ -17,3 +17,7 @@
   --color-muted: #555555;        /* Dark gray for muted elements */
   --color-accent: #cddc39;       /* Brighter accent */
 }
+
+html {
+  font-size: 15px;
+}

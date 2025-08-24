@@ -1,0 +1,966 @@
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2025-08-24T07:36:29.212Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "1",
+    "object_repr": " (admin)",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Role\"]}}]"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 1,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 1,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 1,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": 1,
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 2,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 2,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 2,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can view permission",
+    "content_type": 2,
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 3,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 3,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 3,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can view group",
+    "content_type": 3,
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 4,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 4,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 4,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can view content type",
+    "content_type": 4,
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 5,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 5,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 5,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can view session",
+    "content_type": 5,
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can add user",
+    "content_type": 6,
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can change user",
+    "content_type": 6,
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can delete user",
+    "content_type": 6,
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can view user",
+    "content_type": 6,
+    "codename": "view_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add institution",
+    "content_type": 7,
+    "codename": "add_institution"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change institution",
+    "content_type": 7,
+    "codename": "change_institution"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete institution",
+    "content_type": 7,
+    "codename": "delete_institution"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can view institution",
+    "content_type": 7,
+    "codename": "view_institution"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 29,
+  "fields": {
+    "name": "Can add project",
+    "content_type": 8,
+    "codename": "add_project"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 30,
+  "fields": {
+    "name": "Can change project",
+    "content_type": 8,
+    "codename": "change_project"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 31,
+  "fields": {
+    "name": "Can delete project",
+    "content_type": 8,
+    "codename": "delete_project"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 32,
+  "fields": {
+    "name": "Can view project",
+    "content_type": 8,
+    "codename": "view_project"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 33,
+  "fields": {
+    "name": "Can add task",
+    "content_type": 9,
+    "codename": "add_task"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 34,
+  "fields": {
+    "name": "Can change task",
+    "content_type": 9,
+    "codename": "change_task"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 35,
+  "fields": {
+    "name": "Can delete task",
+    "content_type": 9,
+    "codename": "delete_task"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 36,
+  "fields": {
+    "name": "Can view task",
+    "content_type": 9,
+    "codename": "view_task"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 37,
+  "fields": {
+    "name": "Can add task comment",
+    "content_type": 10,
+    "codename": "add_taskcomment"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 38,
+  "fields": {
+    "name": "Can change task comment",
+    "content_type": 10,
+    "codename": "change_taskcomment"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 39,
+  "fields": {
+    "name": "Can delete task comment",
+    "content_type": 10,
+    "codename": "delete_taskcomment"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 40,
+  "fields": {
+    "name": "Can view task comment",
+    "content_type": 10,
+    "codename": "view_taskcomment"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 41,
+  "fields": {
+    "name": "Can add task evidence",
+    "content_type": 11,
+    "codename": "add_taskevidence"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 42,
+  "fields": {
+    "name": "Can change task evidence",
+    "content_type": 11,
+    "codename": "change_taskevidence"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 43,
+  "fields": {
+    "name": "Can delete task evidence",
+    "content_type": 11,
+    "codename": "delete_taskevidence"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 44,
+  "fields": {
+    "name": "Can view task evidence",
+    "content_type": 11,
+    "codename": "view_taskevidence"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 45,
+  "fields": {
+    "name": "Can add chat message",
+    "content_type": 12,
+    "codename": "add_chatmessage"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 46,
+  "fields": {
+    "name": "Can change chat message",
+    "content_type": 12,
+    "codename": "change_chatmessage"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 47,
+  "fields": {
+    "name": "Can delete chat message",
+    "content_type": 12,
+    "codename": "delete_chatmessage"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 48,
+  "fields": {
+    "name": "Can view chat message",
+    "content_type": 12,
+    "codename": "view_chatmessage"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "users",
+    "model": "user"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "institutions",
+    "model": "institution"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 8,
+  "fields": {
+    "app_label": "projects",
+    "model": "project"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "tasks",
+    "model": "task"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 10,
+  "fields": {
+    "app_label": "tasks",
+    "model": "taskcomment"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 11,
+  "fields": {
+    "app_label": "tasks",
+    "model": "taskevidence"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 12,
+  "fields": {
+    "app_label": "chat",
+    "model": "chatmessage"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "7gofynp6ff3iry04htn0rkxka4hq1u3l",
+  "fields": {
+    "session_data": ".eJxVjDsOwyAQRO9CHSGw-W3K9D4Dgl0ITiKQjF1FuXtsyUVSzrw382Y-bGvxW0-Ln4ldmWSX3y4GfKZ6AHqEem8cW12XOfJD4SftfGqUXrfT_TsooZd9nUbQWmSLymar0FiKIDIaOZpBUgKgjEOUTgWHblRW7MHqHMApSAjEPl_cLjfF:1uq5Gt:gZ85UY37EeNWPKzs6fldJkC8qVoJ-m6c3UAhgopdHCo",
+    "expire_date": "2025-09-07T07:36:11.573Z"
+  }
+},
+{
+  "model": "users.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$DXfZxnnGu4lXtkhtw5XYpX$d8SmCfQibPB9nBJvqCi3XZam8rR3as+V88RKMscQBtQ=",
+    "last_login": "2025-08-24T09:01:23.215Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@example.com",
+    "is_staff": true,
+    "date_joined": "2025-08-21T12:01:16Z",
+    "role": "admin",
+    "institution": null,
+    "phone": "",
+    "is_active": true,
+    "created_at": "2025-08-21T12:01:17.137Z",
+    "updated_at": "2025-08-24T07:36:29.204Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$gRN9CD83RpX1wTUDLvMCsf$oR8iZClGNEsEuw61XeFvB9Y3zGjxdGjO1QbpddBdvi8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "jane",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "email": "jane@example.com",
+    "is_staff": false,
+    "date_joined": "2025-08-21T12:08:42.904Z",
+    "role": "supervisor",
+    "institution": 1,
+    "phone": "",
+    "is_active": true,
+    "created_at": "2025-08-21T12:08:42.906Z",
+    "updated_at": "2025-08-21T12:08:43.861Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$e1U34BskRCHRPRzwVpgqpu$i5ZIA+hiylh4Gcj1gAWhU+Qut5HxLpuL1Hb0OzUfsFY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bob",
+    "first_name": "Bob",
+    "last_name": "Wilson",
+    "email": "bob@example.com",
+    "is_staff": false,
+    "date_joined": "2025-08-21T12:08:43.893Z",
+    "role": "supervisor",
+    "institution": 2,
+    "phone": "",
+    "is_active": true,
+    "created_at": "2025-08-21T12:08:43.893Z",
+    "updated_at": "2025-08-21T12:08:44.826Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$0PYaYvH4AIfcWe6WUHZvLF$HFQ3TSIVCqeboErYoS5NWhATwF+Q76iXrhe/1o0HVmk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tom",
+    "first_name": "Tom",
+    "last_name": "Green",
+    "email": "tom@example.com",
+    "is_staff": false,
+    "date_joined": "2025-08-21T12:08:44.861Z",
+    "role": "employee",
+    "institution": 1,
+    "phone": "",
+    "is_active": true,
+    "created_at": "2025-08-21T12:08:44.861Z",
+    "updated_at": "2025-08-21T12:08:45.948Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$vAwCU7esu8PjtKNgRCtTjK$PugyR5YbDw2jt8SS84q0CRHDZPLBWIK7/Cm7xgRYGg0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sarah",
+    "first_name": "Sarah",
+    "last_name": "Johnson",
+    "email": "sarah@example.com",
+    "is_staff": false,
+    "date_joined": "2025-08-21T12:08:45.960Z",
+    "role": "employee",
+    "institution": 2,
+    "phone": "",
+    "is_active": true,
+    "created_at": "2025-08-21T12:08:45.962Z",
+    "updated_at": "2025-08-21T12:08:47.075Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "institutions.institution",
+  "pk": 1,
+  "fields": {
+    "name": "Main Campus",
+    "description": "Primary institution",
+    "supervisor": 2,
+    "address": "123 Main St",
+    "phone": "555-0001",
+    "email": "main@example.com",
+    "is_active": true,
+    "created_at": "2025-08-21T12:08:42.886Z",
+    "updated_at": "2025-08-21T12:08:44.843Z"
+  }
+},
+{
+  "model": "institutions.institution",
+  "pk": 2,
+  "fields": {
+    "name": "North Branch",
+    "description": "Northern branch office",
+    "supervisor": 3,
+    "address": "456 North Ave",
+    "phone": "555-0002",
+    "email": "north@example.com",
+    "is_active": true,
+    "created_at": "2025-08-21T12:08:42.896Z",
+    "updated_at": "2025-08-21T12:08:44.852Z"
+  }
+},
+{
+  "model": "institutions.institution",
+  "pk": 3,
+  "fields": {
+    "name": "Main Campus",
+    "description": "Primary institution",
+    "supervisor": null,
+    "address": "123 Main St",
+    "phone": "555-0001",
+    "email": "main@example.com",
+    "is_active": true,
+    "created_at": "2025-08-21T12:12:01.830Z",
+    "updated_at": "2025-08-21T12:12:01.830Z"
+  }
+},
+{
+  "model": "institutions.institution",
+  "pk": 4,
+  "fields": {
+    "name": "North Branch",
+    "description": "Northern branch office",
+    "supervisor": null,
+    "address": "456 North Ave",
+    "phone": "555-0002",
+    "email": "north@example.com",
+    "is_active": true,
+    "created_at": "2025-08-21T12:12:01.841Z",
+    "updated_at": "2025-08-21T12:12:01.841Z"
+  }
+},
+{
+  "model": "institutions.institution",
+  "pk": 5,
+  "fields": {
+    "name": "Main Campus",
+    "description": "Primary institution",
+    "supervisor": 2,
+    "address": "123 Main St",
+    "phone": "555-0001",
+    "email": "main@example.com",
+    "is_active": true,
+    "created_at": "2025-08-21T12:13:48.140Z",
+    "updated_at": "2025-08-21T12:13:48.166Z"
+  }
+},
+{
+  "model": "institutions.institution",
+  "pk": 6,
+  "fields": {
+    "name": "North Branch",
+    "description": "Northern branch office",
+    "supervisor": 3,
+    "address": "456 North Ave",
+    "phone": "555-0002",
+    "email": "north@example.com",
+    "is_active": true,
+    "created_at": "2025-08-21T12:13:48.154Z",
+    "updated_at": "2025-08-21T12:13:48.175Z"
+  }
+},
+{
+  "model": "projects.project",
+  "pk": 1,
+  "fields": {
+    "title": "Community Outreach Program",
+    "description": "Establishing community centers in underserved areas",
+    "status": "active",
+    "created_by": 1,
+    "start_date": "2025-08-21",
+    "end_date": null,
+    "budget": null,
+    "created_at": "2025-08-21T12:08:47.089Z",
+    "updated_at": "2025-08-21T12:08:47.089Z"
+  }
+},
+{
+  "model": "projects.project",
+  "pk": 2,
+  "fields": {
+    "title": "Community Outreach Program",
+    "description": "Establishing community centers in underserved areas",
+    "status": "active",
+    "created_by": 1,
+    "start_date": "2025-08-21",
+    "end_date": null,
+    "budget": null,
+    "created_at": "2025-08-21T12:13:48.185Z",
+    "updated_at": "2025-08-21T12:13:48.185Z"
+  }
+},
+{
+  "model": "tasks.task",
+  "pk": 1,
+  "fields": {
+    "project": 1,
+    "title": "Site Assessment",
+    "description": "Evaluate potential locations for community centers",
+    "assignee": 4,
+    "institution": 1,
+    "status": "completed",
+    "progress": 100,
+    "due_date": "2025-09-20T12:08:47.099Z",
+    "created_at": "2025-08-21T12:08:47.100Z",
+    "updated_at": "2025-08-21T12:08:47.100Z"
+  }
+},
+{
+  "model": "tasks.task",
+  "pk": 2,
+  "fields": {
+    "project": 1,
+    "title": "Permit Applications",
+    "description": "Submit necessary permits and documentation",
+    "assignee": 5,
+    "institution": 2,
+    "status": "in_progress",
+    "progress": 65,
+    "due_date": "2025-10-05T12:08:47.109Z",
+    "created_at": "2025-08-21T12:08:47.110Z",
+    "updated_at": "2025-08-21T12:08:47.110Z"
+  }
+},
+{
+  "model": "tasks.task",
+  "pk": 3,
+  "fields": {
+    "project": 2,
+    "title": "Site Assessment",
+    "description": "Evaluate potential locations for community centers",
+    "assignee": 4,
+    "institution": 5,
+    "status": "completed",
+    "progress": 100,
+    "due_date": "2025-09-20T12:13:48.193Z",
+    "created_at": "2025-08-21T12:13:48.194Z",
+    "updated_at": "2025-08-21T12:13:48.194Z"
+  }
+},
+{
+  "model": "tasks.task",
+  "pk": 4,
+  "fields": {
+    "project": 2,
+    "title": "Permit Applications",
+    "description": "Submit necessary permits and documentation",
+    "assignee": 5,
+    "institution": 6,
+    "status": "in_progress",
+    "progress": 65,
+    "due_date": "2025-10-05T12:13:48.203Z",
+    "created_at": "2025-08-21T12:13:48.203Z",
+    "updated_at": "2025-08-21T12:13:48.203Z"
+  }
+},
+{
+  "model": "tasks.taskcomment",
+  "pk": 1,
+  "fields": {
+    "task": 1,
+    "author": 4,
+    "content": "Site assessment completed. Found 3 viable locations.",
+    "created_at": "2025-08-21T12:08:47.119Z"
+  }
+},
+{
+  "model": "tasks.taskcomment",
+  "pk": 2,
+  "fields": {
+    "task": 2,
+    "author": 5,
+    "content": "Permits submitted to city planning office. Waiting for approval.",
+    "created_at": "2025-08-21T12:08:47.128Z"
+  }
+},
+{
+  "model": "tasks.taskcomment",
+  "pk": 3,
+  "fields": {
+    "task": 3,
+    "author": 4,
+    "content": "Site assessment completed. Found 3 viable locations.",
+    "created_at": "2025-08-21T12:13:48.211Z"
+  }
+},
+{
+  "model": "tasks.taskcomment",
+  "pk": 4,
+  "fields": {
+    "task": 4,
+    "author": 5,
+    "content": "Permits submitted to city planning office. Waiting for approval.",
+    "created_at": "2025-08-21T12:13:48.220Z"
+  }
+},
+{
+  "model": "tasks.taskevidence",
+  "pk": 1,
+  "fields": {
+    "task": 1,
+    "file_name": "site_assessment_report.pdf",
+    "file_url": "",
+    "file": "",
+    "file_type": "document",
+    "description": "Detailed site assessment report",
+    "uploaded_by": 4,
+    "uploaded_at": "2025-08-21T12:08:47.135Z"
+  }
+},
+{
+  "model": "tasks.taskevidence",
+  "pk": 2,
+  "fields": {
+    "task": 3,
+    "file_name": "site_assessment_report.pdf",
+    "file_url": "",
+    "file": "",
+    "file_type": "document",
+    "description": "Detailed site assessment report",
+    "uploaded_by": 4,
+    "uploaded_at": "2025-08-21T12:13:48.228Z"
+  }
+},
+{
+  "model": "chat.chatmessage",
+  "pk": 1,
+  "fields": {
+    "sender": 1,
+    "recipient": null,
+    "content": "Welcome everyone to the Hesed Events platform!",
+    "chat_type": "group",
+    "timestamp": "2025-08-21T12:08:47.142Z",
+    "is_read": false
+  }
+},
+{
+  "model": "chat.chatmessage",
+  "pk": 2,
+  "fields": {
+    "sender": 2,
+    "recipient": 4,
+    "content": "Great work on the site assessment!",
+    "chat_type": "private",
+    "timestamp": "2025-08-21T12:08:47.150Z",
+    "is_read": false
+  }
+},
+{
+  "model": "chat.chatmessage",
+  "pk": 3,
+  "fields": {
+    "sender": 1,
+    "recipient": null,
+    "content": "Welcome everyone to the Hesed Events platform!",
+    "chat_type": "group",
+    "timestamp": "2025-08-21T12:13:48.236Z",
+    "is_read": false
+  }
+},
+{
+  "model": "chat.chatmessage",
+  "pk": 4,
+  "fields": {
+    "sender": 2,
+    "recipient": 4,
+    "content": "Great work on the site assessment!",
+    "chat_type": "private",
+    "timestamp": "2025-08-21T12:13:48.244Z",
+    "is_read": false
+  }
+}
+]

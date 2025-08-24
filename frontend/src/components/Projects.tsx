@@ -4,7 +4,7 @@ import { TaskCard } from "./TaskCard";
 import { ProjectModal } from "./ProjectModal";
 import { TaskModal } from "./TaskModal";
 import { Plus, FolderKanban, Filter, Search } from "lucide-react";
-import type { Task } from "../types";
+import type { Task, Project } from "../types";
 
 export function Projects() {
   const { state } = useApp();
@@ -14,9 +14,13 @@ export function Projects() {
   );
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState(null);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [taskModalMode, setTaskModalMode] = useState<"create" | "edit">("edit");
+  const [createTaskStatus, setCreateTaskStatus] = useState<
+    "initial" | "in_progress" | "completed"
+  >("initial");
 
   // Filter tasks based on search term and status
   const filteredTasks = state.tasks.filter((task) => {
@@ -45,7 +49,29 @@ export function Projects() {
 
   const handleTaskClick = (task: Task) => {
     setEditingTask(task);
+    setTaskModalMode("edit");
     setIsTaskModalOpen(true);
+  };
+
+  const handleCreateTask = (
+    status: "initial" | "in_progress" | "completed"
+  ) => {
+    setEditingTask(null);
+    setTaskModalMode("create");
+    setCreateTaskStatus(status);
+    setIsTaskModalOpen(true);
+  };
+
+  const handleColumnClick = (
+    status: "initial" | "in_progress" | "completed"
+  ) => {
+    // Only allow task creation if user has permission and a project is selected
+    if (
+      (state.user?.role === "admin" || state.user?.role === "supervisor") &&
+      selectedProject
+    ) {
+      handleCreateTask(status);
+    }
   };
 
   return (
@@ -130,80 +156,283 @@ export function Projects() {
         </div>
       </div>
 
-      {/* Kanban Board */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Initial Column */}
-        <div className="bg-white rounded-lg border border-muted/20 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-text">Initial</h2>
-            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm font-medium">
-              {tasksByStatus.initial.length}
-            </span>
-          </div>
-          <div className="space-y-3">
-            {tasksByStatus.initial.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onClick={() => handleTaskClick(task)}
-              />
-            ))}
-            {tasksByStatus.initial.length === 0 && (
-              <div className="text-center py-8 text-muted">
-                <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
-                <p>No initial tasks</p>
-              </div>
-            )}
-          </div>
+      {/* Projects Grid */}
+      <div className="bg-white rounded-lg border border-muted/20 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-text">All Projects</h2>
+          <span className="text-sm text-muted">
+            {state.projects.length} project
+            {state.projects.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
-        {/* In Progress Column */}
-        <div className="bg-white rounded-lg border border-muted/20 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-text">In Progress</h2>
-            <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm font-medium">
-              {tasksByStatus.in_progress.length}
-            </span>
-          </div>
-          <div className="space-y-3">
-            {tasksByStatus.in_progress.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onClick={() => handleTaskClick(task)}
-              />
-            ))}
-            {tasksByStatus.in_progress.length === 0 && (
-              <div className="text-center py-8 text-muted">
-                <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
-                <p>No tasks in progress</p>
-              </div>
+        {state.projects.length === 0 ? (
+          <div className="text-center py-8 text-muted">
+            <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
+            <p>No projects found</p>
+            {canCreateProject && (
+              <p className="text-sm mt-2 text-primary">
+                Click "New Project" to get started
+              </p>
             )}
           </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {state.projects.map((project) => (
+              <div
+                key={project.id}
+                className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
+                  selectedProject === project.id
+                    ? "border-primary bg-primary/5"
+                    : "border-muted/30 hover:border-primary/50"
+                }`}
+                onClick={() =>
+                  setSelectedProject(
+                    selectedProject === project.id ? null : project.id
+                  )
+                }
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-text truncate pr-2">
+                    {project.title}
+                  </h3>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      project.status === "active"
+                        ? "bg-green-100 text-green-700"
+                        : project.status === "completed"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+
+                <p
+                  className="text-sm text-muted mb-3 overflow-hidden"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {project.description}
+                </p>
+
+                <div className="space-y-1 text-xs text-muted">
+                  <div className="flex justify-between">
+                    <span>Tasks:</span>
+                    <span className="font-medium">
+                      {project.tasks?.length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Created:</span>
+                    <span>
+                      {new Date(project.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Created by:</span>
+                    <span className="font-medium">{project.createdBy}</span>
+                  </div>
+                </div>
+
+                {selectedProject === project.id && (
+                  <div className="mt-3 pt-3 border-t border-muted/20">
+                    <div className="flex space-x-2">
+                      {state.user?.role === "admin" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingProject(project);
+                            setIsProjectModalOpen(true);
+                          }}
+                          className="flex-1 px-3 py-1 bg-primary text-white text-sm rounded hover:bg-primary/90 transition-colors"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Focus on this project in the kanban view
+                          setSelectedProject(project.id);
+                        }}
+                        className="flex-1 px-3 py-1 border border-primary text-primary text-sm rounded hover:bg-primary/10 transition-colors"
+                      >
+                        View Tasks
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Task Management Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-text">
+            Task Management
+            {selectedProject && (
+              <span className="ml-2 text-base font-normal text-muted">
+                - {state.projects.find((p) => p.id === selectedProject)?.title}
+              </span>
+            )}
+          </h2>
+          {selectedProject && (
+            <button
+              onClick={() => setSelectedProject(null)}
+              className="text-sm text-muted hover:text-text transition-colors"
+            >
+              View All Projects
+            </button>
+          )}
         </div>
 
-        {/* Completed Column */}
-        <div className="bg-white rounded-lg border border-muted/20 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-text">Completed</h2>
-            <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-sm font-medium">
-              {tasksByStatus.completed.length}
-            </span>
-          </div>
-          <div className="space-y-3">
-            {tasksByStatus.completed.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onClick={() => handleTaskClick(task)}
-              />
-            ))}
-            {tasksByStatus.completed.length === 0 && (
-              <div className="text-center py-8 text-muted">
-                <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
-                <p>No completed tasks</p>
+        {/* Helper Message */}
+        {!selectedProject &&
+          (state.user?.role === "admin" ||
+            state.user?.role === "supervisor") && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-blue-700 text-sm">
+                💡 <strong>Tip:</strong> Select a project above to enable task
+                creation. Click on any status column to add a new task to that
+                stage.
+              </p>
+            </div>
+          )}
+
+        {/* Kanban Board */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Initial Column */}
+          <div
+            className="bg-white rounded-lg border border-muted/20 p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+            onClick={() => handleColumnClick("initial")}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <h2 className="font-semibold text-text">Initial</h2>
+                {selectedProject &&
+                  (state.user?.role === "admin" ||
+                    state.user?.role === "supervisor") && (
+                    <Plus size={16} className="text-primary opacity-60" />
+                  )}
               </div>
-            )}
+              <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm font-medium">
+                {tasksByStatus.initial.length}
+              </span>
+            </div>
+            <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+              {tasksByStatus.initial.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onClick={() => handleTaskClick(task)}
+                />
+              ))}
+              {tasksByStatus.initial.length === 0 && (
+                <div className="text-center py-8 text-muted">
+                  <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
+                  <p>No initial tasks</p>
+                  {selectedProject &&
+                    (state.user?.role === "admin" ||
+                      state.user?.role === "supervisor") && (
+                      <p className="text-sm mt-2 text-primary">
+                        Click to add a task
+                      </p>
+                    )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* In Progress Column */}
+          <div
+            className="bg-white rounded-lg border border-muted/20 p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+            onClick={() => handleColumnClick("in_progress")}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <h2 className="font-semibold text-text">In Progress</h2>
+                {selectedProject &&
+                  (state.user?.role === "admin" ||
+                    state.user?.role === "supervisor") && (
+                    <Plus size={16} className="text-primary opacity-60" />
+                  )}
+              </div>
+              <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm font-medium">
+                {tasksByStatus.in_progress.length}
+              </span>
+            </div>
+            <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+              {tasksByStatus.in_progress.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onClick={() => handleTaskClick(task)}
+                />
+              ))}
+              {tasksByStatus.in_progress.length === 0 && (
+                <div className="text-center py-8 text-muted">
+                  <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
+                  <p>No tasks in progress</p>
+                  {selectedProject &&
+                    (state.user?.role === "admin" ||
+                      state.user?.role === "supervisor") && (
+                      <p className="text-sm mt-2 text-primary">
+                        Click to add a task
+                      </p>
+                    )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Completed Column */}
+          <div
+            className="bg-white rounded-lg border border-muted/20 p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+            onClick={() => handleColumnClick("completed")}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <h2 className="font-semibold text-text">Completed</h2>
+                {selectedProject &&
+                  (state.user?.role === "admin" ||
+                    state.user?.role === "supervisor") && (
+                    <Plus size={16} className="text-primary opacity-60" />
+                  )}
+              </div>
+              <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-sm font-medium">
+                {tasksByStatus.completed.length}
+              </span>
+            </div>
+            <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+              {tasksByStatus.completed.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onClick={() => handleTaskClick(task)}
+                />
+              ))}
+              {tasksByStatus.completed.length === 0 && (
+                <div className="text-center py-8 text-muted">
+                  <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
+                  <p>No completed tasks</p>
+                  {selectedProject &&
+                    (state.user?.role === "admin" ||
+                      state.user?.role === "supervisor") && (
+                      <p className="text-sm mt-2 text-primary">
+                        Click to add a task
+                      </p>
+                    )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -282,6 +511,9 @@ export function Projects() {
           setEditingTask(null);
         }}
         task={editingTask}
+        mode={taskModalMode}
+        initialStatus={createTaskStatus}
+        projectId={selectedProject || undefined}
       />
     </div>
   );

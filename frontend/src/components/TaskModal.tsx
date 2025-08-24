@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Save, Loader } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { apiService } from "../services/api";
@@ -7,24 +7,61 @@ import type { Task } from "../types";
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  task: Task | null;
+  task?: Task | null;
+  mode: "create" | "edit";
+  initialStatus?: "initial" | "in_progress" | "completed";
+  projectId?: string;
 }
 
-export function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
+export function TaskModal({
+  isOpen,
+  onClose,
+  task,
+  mode,
+  initialStatus,
+  projectId,
+}: TaskModalProps) {
   const { state, loadInitialData } = useApp();
   const [formData, setFormData] = useState({
-    title: task?.title || "",
-    description: task?.description || "",
-    status:
-      task?.status || ("initial" as "initial" | "in_progress" | "completed"),
-    progress: task?.progress || 0,
-    assigneeId: task?.assigneeId || "",
-    dueDate: task?.dueDate ? task.dueDate.split("T")[0] : "",
+    title: "",
+    description: "",
+    status: "initial" as "initial" | "in_progress" | "completed",
+    progress: 0,
+    assigneeId: "",
+    dueDate: "",
+    projectId: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen || !task) return null;
+  // Reset form data when modal opens or task changes
+  useEffect(() => {
+    if (isOpen) {
+      if (mode === "edit" && task) {
+        setFormData({
+          title: task.title || "",
+          description: task.description || "",
+          status: task.status || "initial",
+          progress: task.progress || 0,
+          assigneeId: task.assigneeId || "",
+          dueDate: task.dueDate ? task.dueDate.split("T")[0] : "",
+          projectId: task.projectId || "",
+        });
+      } else if (mode === "create") {
+        setFormData({
+          title: "",
+          description: "",
+          status: initialStatus || "initial",
+          progress: 0,
+          assigneeId: "",
+          dueDate: "",
+          projectId: projectId || "",
+        });
+      }
+    }
+  }, [isOpen, task, mode, initialStatus, projectId]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,14 +69,26 @@ export function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
     setError(null);
 
     try {
-      await apiService.updateTask(parseInt(task.id), {
-        title: formData.title,
-        description: formData.description,
-        status: formData.status,
-        progress: formData.progress,
-        assignee: formData.assigneeId ? parseInt(formData.assigneeId) : null,
-        due_date: formData.dueDate || null,
-      } as any);
+      if (mode === "edit" && task) {
+        await apiService.updateTask(parseInt(task.id), {
+          title: formData.title,
+          description: formData.description,
+          status: formData.status,
+          progress: formData.progress,
+          assignee: formData.assigneeId ? parseInt(formData.assigneeId) : null,
+          due_date: formData.dueDate || null,
+        } as any);
+      } else if (mode === "create") {
+        await apiService.createTask({
+          title: formData.title,
+          description: formData.description,
+          status: formData.status,
+          progress: formData.progress,
+          assignee: formData.assigneeId ? parseInt(formData.assigneeId) : null,
+          due_date: formData.dueDate || null,
+          project: formData.projectId ? parseInt(formData.projectId) : null,
+        } as any);
+      }
 
       // Reload data to get updated tasks
       await loadInitialData();
@@ -79,11 +128,13 @@ export function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-muted/20">
-          <h2 className="text-xl font-semibold text-text">Edit Task</h2>
+          <h2 className="text-xl font-semibold text-text">
+            {mode === "edit" ? "Edit Task" : "Create New Task"}
+          </h2>
           <button
             onClick={onClose}
             className="text-muted hover:text-text transition-colors"
@@ -219,6 +270,32 @@ export function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
             />
           </div>
 
+          {mode === "create" && (
+            <div>
+              <label
+                htmlFor="projectId"
+                className="block text-sm font-medium text-text mb-2"
+              >
+                Project
+              </label>
+              <select
+                id="projectId"
+                name="projectId"
+                value={formData.projectId}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              >
+                <option value="">Select a project</option>
+                {state.projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex space-x-3 pt-4">
             <button
@@ -238,7 +315,7 @@ export function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
               ) : (
                 <Save size={16} />
               )}
-              <span>Update</span>
+              <span>{mode === "edit" ? "Update" : "Create"}</span>
             </button>
           </div>
         </form>

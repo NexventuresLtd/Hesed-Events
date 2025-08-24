@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Save, Loader } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { apiService } from "../services/api";
@@ -14,18 +14,43 @@ interface UserModalProps {
 export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
   const { loadInitialData } = useApp();
   const [formData, setFormData] = useState({
-    username: user?.name || "",
-    email: user?.email || "",
+    username: "",
+    email: "",
     first_name: "",
     last_name: "",
-    role:
-      user?.role ||
-      ("employee" as "admin" | "supervisor" | "employee" | "observer"),
+    role: "employee" as "admin" | "supervisor" | "employee" | "observer",
     password: "",
     confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Reset form data when modal opens or user changes
+  useEffect(() => {
+    if (isOpen) {
+      if (mode === "edit" && user) {
+        setFormData({
+          username: user.name || "",
+          email: user.email || "",
+          first_name: "",
+          last_name: "",
+          role: user.role || "employee",
+          password: "",
+          confirmPassword: "",
+        });
+      } else if (mode === "create") {
+        setFormData({
+          username: "",
+          email: "",
+          first_name: "",
+          last_name: "",
+          role: "employee",
+          password: "",
+          confirmPassword: "",
+        });
+      }
+    }
+  }, [isOpen, user, mode]);
 
   if (!isOpen) return null;
 
@@ -85,7 +110,7 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-muted/20">

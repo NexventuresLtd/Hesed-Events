@@ -38,7 +38,7 @@ export function UsersPage() {
       const fetchedUsers = await apiService.getUsers();
       
       // Convert API users to frontend format
-      const convertedUsers: User[] = fetchedUsers.map((user: any) => ({
+      const convertedUsers: User[] = (fetchedUsers as any)?.results?.map((user: any) => ({
         id: user.id.toString(),
         name: `${user.first_name} ${user.last_name}`.trim() || user.username,
         email: user.email,
