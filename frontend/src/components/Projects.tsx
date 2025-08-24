@@ -4,10 +4,11 @@ import { TaskCard } from "./TaskCard";
 import { ProjectModal } from "./ProjectModal";
 import { TaskModal } from "./TaskModal";
 import { Plus, FolderKanban, Filter, Search } from "lucide-react";
+import { apiService } from "../services/api";
 import type { Task, Project } from "../types";
 
 export function Projects() {
-  const { state } = useApp();
+  const { state, loadInitialData } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Task["status"]>(
     "all"
@@ -21,6 +22,8 @@ export function Projects() {
   const [createTaskStatus, setCreateTaskStatus] = useState<
     "initial" | "in_progress" | "completed"
   >("initial");
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
 
   // Filter tasks based on search term and status
   const filteredTasks = state.tasks.filter((task) => {
@@ -71,6 +74,65 @@ export function Projects() {
       selectedProject
     ) {
       handleCreateTask(status);
+    }
+  };
+
+  const handleDragStart = (task: Task) => {
+    setDraggedTask(task);
+  };
+
+  const handleDragOver = (e: React.DragEvent, status: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverColumn(status);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverColumn(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, newStatus: "initial" | "in_progress" | "completed") => {
+    e.preventDefault();
+    setDragOverColumn(null);
+    
+    const taskId = e.dataTransfer.getData("text/plain");
+    const task = state.tasks.find(t => t.id === taskId);
+    
+    if (!task || task.status === newStatus) {
+      setDraggedTask(null);
+      return;
+    }
+
+    // Only allow status changes for admin/supervisor roles
+    if (state.user?.role !== "admin" && state.user?.role !== "supervisor") {
+      setDraggedTask(null);
+      return;
+    }
+
+    try {
+      // Update progress based on status
+      let newProgress = task.progress;
+      if (newStatus === "initial") newProgress = 0;
+      else if (newStatus === "in_progress" && newProgress === 0) newProgress = 50;
+      else if (newStatus === "completed") newProgress = 100;
+
+      // Update task via API
+      await apiService.updateTask(parseInt(task.id), {
+        title: task.title,
+        description: task.description,
+        status: newStatus,
+        progress: newProgress,
+        assignee: task.assigneeId ? parseInt(task.assigneeId) : null,
+        due_date: task.dueDate || null,
+      } as any);
+
+      // Reload data to reflect changes
+      await loadInitialData();
+    } catch (error) {
+      console.error("Error updating task status:", error);
+      alert("Failed to update task status");
+    } finally {
+      setDraggedTask(null);
     }
   };
 
@@ -307,12 +369,27 @@ export function Projects() {
             </div>
           )}
 
+        {selectedProject && 
+          (state.user?.role === "admin" || state.user?.role === "supervisor") && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-green-700 text-sm">
+                🎯 <strong>Drag & Drop:</strong> Drag tasks between columns to change their status. 
+                You can also click on any column to create new tasks or click existing tasks to edit them.
+              </p>
+            </div>
+          )}
+
         {/* Kanban Board */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Initial Column */}
           <div
-            className="bg-white rounded-lg border border-muted/20 p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+            className={`bg-white rounded-lg border border-muted/20 p-4 transition-all hover:bg-gray-50 cursor-pointer ${
+              dragOverColumn === "initial" ? "bg-primary/10 border-primary scale-105" : ""
+            }`}
             onClick={() => handleColumnClick("initial")}
+            onDragOver={(e) => handleDragOver(e, "initial")}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, "initial")}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
@@ -333,8 +410,15 @@ export function Projects() {
                   key={task.id}
                   task={task}
                   onClick={() => handleTaskClick(task)}
+                  onDragStart={handleDragStart}
+                  isDragging={draggedTask?.id === task.id}
                 />
               ))}
+              {dragOverColumn === "initial" && tasksByStatus.initial.length > 0 && (
+                <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                  <p className="text-primary font-medium text-center">Drop task here to move to Initial</p>
+                </div>
+              )}
               {tasksByStatus.initial.length === 0 && (
                 <div className="text-center py-8 text-muted">
                   <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
@@ -346,6 +430,11 @@ export function Projects() {
                         Click to add a task
                       </p>
                     )}
+                  {dragOverColumn === "initial" && (
+                    <div className="mt-4 p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                      <p className="text-primary font-medium">Drop task here to move to Initial</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -353,8 +442,13 @@ export function Projects() {
 
           {/* In Progress Column */}
           <div
-            className="bg-white rounded-lg border border-muted/20 p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+            className={`bg-white rounded-lg border border-muted/20 p-4 transition-all hover:bg-gray-50 cursor-pointer ${
+              dragOverColumn === "in_progress" ? "bg-primary/10 border-primary scale-105" : ""
+            }`}
             onClick={() => handleColumnClick("in_progress")}
+            onDragOver={(e) => handleDragOver(e, "in_progress")}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, "in_progress")}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
@@ -375,8 +469,15 @@ export function Projects() {
                   key={task.id}
                   task={task}
                   onClick={() => handleTaskClick(task)}
+                  onDragStart={handleDragStart}
+                  isDragging={draggedTask?.id === task.id}
                 />
               ))}
+              {dragOverColumn === "in_progress" && tasksByStatus.in_progress.length > 0 && (
+                <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                  <p className="text-primary font-medium text-center">Drop task here to move to In Progress</p>
+                </div>
+              )}
               {tasksByStatus.in_progress.length === 0 && (
                 <div className="text-center py-8 text-muted">
                   <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
@@ -388,6 +489,11 @@ export function Projects() {
                         Click to add a task
                       </p>
                     )}
+                  {dragOverColumn === "in_progress" && (
+                    <div className="mt-4 p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                      <p className="text-primary font-medium">Drop task here to move to In Progress</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -395,8 +501,13 @@ export function Projects() {
 
           {/* Completed Column */}
           <div
-            className="bg-white rounded-lg border border-muted/20 p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+            className={`bg-white rounded-lg border border-muted/20 p-4 transition-all hover:bg-gray-50 cursor-pointer ${
+              dragOverColumn === "completed" ? "bg-primary/10 border-primary scale-105" : ""
+            }`}
             onClick={() => handleColumnClick("completed")}
+            onDragOver={(e) => handleDragOver(e, "completed")}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, "completed")}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
@@ -417,8 +528,15 @@ export function Projects() {
                   key={task.id}
                   task={task}
                   onClick={() => handleTaskClick(task)}
+                  onDragStart={handleDragStart}
+                  isDragging={draggedTask?.id === task.id}
                 />
               ))}
+              {dragOverColumn === "completed" && tasksByStatus.completed.length > 0 && (
+                <div className="p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                  <p className="text-primary font-medium text-center">Drop task here to move to Completed</p>
+                </div>
+              )}
               {tasksByStatus.completed.length === 0 && (
                 <div className="text-center py-8 text-muted">
                   <FolderKanban size={48} className="mx-auto mb-4 opacity-50" />
@@ -430,6 +548,11 @@ export function Projects() {
                         Click to add a task
                       </p>
                     )}
+                  {dragOverColumn === "completed" && (
+                    <div className="mt-4 p-4 border-2 border-dashed border-primary rounded-lg bg-primary/5">
+                      <p className="text-primary font-medium">Drop task here to move to Completed</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -10,9 +10,11 @@ import {
 interface TaskCardProps {
   task: Task;
   onClick?: () => void;
+  onDragStart?: (task: Task) => void;
+  isDragging?: boolean;
 }
 
-export function TaskCard({ task, onClick }: TaskCardProps) {
+export function TaskCard({ task, onClick, onDragStart, isDragging }: TaskCardProps) {
   const getStatusColor = (status: Task["status"]) => {
     switch (status) {
       case "initial":
@@ -50,10 +52,19 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
 
   return (
     <div
+      draggable
+      onDragStart={(e) => {
+        e.stopPropagation();
+        if (onDragStart) {
+          onDragStart(task);
+        }
+        e.dataTransfer.setData("text/plain", task.id);
+        e.dataTransfer.effectAllowed = "move";
+      }}
       onClick={onClick}
-      className={`bg-white border border-muted/20 rounded-lg p-4 hover:shadow-md transition-shadow ${
+      className={`bg-white border border-muted/20 rounded-lg p-4 hover:shadow-md transition-all ${
         onClick ? "cursor-pointer" : ""
-      }`}
+      } ${isDragging ? "opacity-50 transform rotate-2" : ""} hover:scale-105`}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
