@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import {
@@ -9,6 +10,8 @@ import {
   Users,
   Bell,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -19,6 +22,7 @@ export function Layout({ children }: LayoutProps) {
   const { state, dispatch } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Get current page from location
   const currentPage = location.pathname.split("/")[1] || "dashboard";
@@ -71,23 +75,33 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background text-text">
       {/* Header */}
-      <header className="bg-white border-b border-muted/20 px-6 py-4 shadow-sm">
+      <header className="bg-white border-b border-muted/20 px-4 sm:px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-primary">Hesed Events</h1>
-            <div className="hidden md:block text-sm text-muted">
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 hover:bg-muted/10 rounded-lg transition-colors"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">
+              Hesed Events
+            </h1>
+            <div className="hidden lg:block text-sm text-muted">
               Event Management Platform
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button className="p-2 hover:bg-muted/10 rounded-lg transition-colors">
               <Bell size={20} />
             </button>
 
             {state.user && (
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="hidden sm:block text-right">
                   <div className="font-medium text-sm">{state.user.name}</div>
                   <div className="text-xs text-muted capitalize">
                     {state.user.role}
@@ -109,9 +123,30 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex relative">
+        {/* Mobile overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-muted/20 min-h-[calc(100vh-80px)]">
+        <aside
+          className={`
+          fixed md:static inset-y-0 left-0 z-50 md:z-auto
+          w-64 bg-white border-r border-muted/20 
+          transform transition-transform duration-300 ease-in-out
+          ${
+            isMobileMenuOpen
+              ? "translate-x-0"
+              : "-translate-x-full md:translate-x-0"
+          }
+          min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-80px)]
+          top-[80px] md:top-auto
+        `}
+        >
           <nav className="p-4">
             <ul className="space-y-2">
               {filteredMenuItems.map((item) => {
@@ -121,7 +156,10 @@ export function Layout({ children }: LayoutProps) {
                 return (
                   <li key={item.id}>
                     <button
-                      onClick={() => navigate(item.path)}
+                      onClick={() => {
+                        navigate(item.path);
+                        setIsMobileMenuOpen(false); // Close mobile menu after navigation
+                      }}
                       className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
                         isActive
                           ? "bg-primary text-white"
@@ -139,7 +177,9 @@ export function Layout({ children }: LayoutProps) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 md:ml-0 min-h-[calc(100vh-80px)] overflow-x-auto">
+          {children}
+        </main>
       </div>
     </div>
   );

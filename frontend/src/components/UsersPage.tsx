@@ -96,9 +96,11 @@ export function UsersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text">User Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-text">
+            User Management
+          </h1>
           <p className="text-muted mt-1">
             Manage user accounts and permissions
           </p>
@@ -107,7 +109,7 @@ export function UsersPage() {
         {canManageUsers && (
           <button
             onClick={() => setIsUserModalOpen(true)}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center space-x-2"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus size={20} />
             <span>Add User</span>
@@ -117,7 +119,7 @@ export function UsersPage() {
 
       {/* Filters */}
       <div className="bg-white rounded-lg border border-muted/20 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
             <Search
@@ -154,9 +156,10 @@ export function UsersPage() {
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-lg border border-muted/20 overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* Users List */}
+      <div className="bg-white rounded-lg border border-muted/20">
+        {/* Desktop Table View */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/10">
               <tr>
@@ -235,14 +238,74 @@ export function UsersPage() {
               ))}
             </tbody>
           </table>
-
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-12">
-              <Users size={48} className="mx-auto mb-4 text-muted opacity-50" />
-              <p className="text-muted">No users found</p>
-            </div>
-          )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="lg:hidden p-4 space-y-4">
+          {filteredUsers.map((user) => (
+            <div
+              key={user.id}
+              className="bg-muted/5 rounded-lg p-4 border border-muted/10"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h3 className="font-medium text-text">{user.name}</h3>
+                  <p className="text-sm text-muted">{user.email}</p>
+                </div>
+                {canManageUsers && (
+                  <div className="flex items-center space-x-2 ml-4">
+                    <button
+                      onClick={() => handleEditUser(user)}
+                      className="p-2 text-muted hover:text-text hover:bg-muted/10 rounded-lg transition-colors"
+                      title="Edit user"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUser(user.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete user"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted">Role:</span>
+                  <span
+                    className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(
+                      user.role
+                    )}`}
+                  >
+                    {user.role}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted">Status:</span>
+                  <div className="flex items-center space-x-1 ml-2">
+                    <UserCheck size={14} className="text-green-600" />
+                    <span className="text-green-600">Active</span>
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-muted">Institution:</span>
+                  <span className="ml-2 text-text">
+                    {user.institutionName || "No institution"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-12">
+            <Users size={48} className="mx-auto mb-4 text-muted opacity-50" />
+            <p className="text-muted">No users found</p>
+          </div>
+        )}
       </div>
 
       {/* User Modal */}

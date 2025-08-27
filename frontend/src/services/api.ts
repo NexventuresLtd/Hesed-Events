@@ -11,7 +11,20 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
+  full_name: string;
   role: 'admin' | 'supervisor' | 'employee' | 'observer';
+  institution: number | null;
+  institution_name: string | null;
+  phone: string;
+  is_active: boolean;
+  date_joined: string;
+}
+
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }
 
 interface Institution {
@@ -49,12 +62,14 @@ interface Task {
 
 interface ChatMessage {
   id: number;
-  sender: User;
-  project: Project | null;
-  recipient: User | null;
-  message: string;
+  sender: number;
+  sender_name: string;
+  sender_role: string;
+  recipient: number | null;
+  content: string;
+  chat_type: 'group' | 'private';
   timestamp: string;
-  is_group_message: boolean;
+  is_read: boolean;
 }
 
 class ApiService {
@@ -217,11 +232,11 @@ class ApiService {
   }
 
   // Chat
-  async getChatMessages(projectId?: number, recipientId?: number): Promise<ChatMessage[]> {
+  async getChatMessages(chatType?: 'group' | 'private', recipientId?: number): Promise<PaginatedResponse<ChatMessage>> {
     let endpoint = '/chat/messages/';
     const params = new URLSearchParams();
 
-    if (projectId) params.append('project', projectId.toString());
+    if (chatType) params.append('chat_type', chatType);
     if (recipientId) params.append('recipient', recipientId.toString());
 
     if (params.toString()) {
@@ -232,10 +247,9 @@ class ApiService {
   }
 
   async sendChatMessage(message: {
-    message: string;
-    project?: number;
+    content: string;
+    chat_type: 'group' | 'private';
     recipient?: number;
-    is_group_message: boolean;
   }): Promise<ChatMessage> {
     return this.request('/chat/messages/', {
       method: 'POST',
@@ -244,7 +258,7 @@ class ApiService {
   }
 
   // Users
-  async getUsers(): Promise<User[]> {
+  async getUsers(): Promise<PaginatedResponse<User>> {
     return this.request('/users/');
   }
 

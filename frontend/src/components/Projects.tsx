@@ -143,9 +143,9 @@ export function Projects() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text">Projects</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-text">Projects</h1>
           <p className="text-muted mt-1">
             Manage and track all project activities
           </p>
@@ -154,7 +154,7 @@ export function Projects() {
         {canCreateProject && (
           <button
             onClick={() => setIsProjectModalOpen(true)}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center space-x-2"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus size={20} />
             <span>New Project</span>
@@ -164,7 +164,7 @@ export function Projects() {
 
       {/* Filters */}
       <div className="bg-white rounded-lg border border-muted/20 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
             <Search
@@ -386,7 +386,7 @@ export function Projects() {
           )}
 
         {/* Kanban Board */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Initial Column */}
           <div
             className={`bg-white rounded-lg border border-muted/20 p-4 transition-all hover:bg-gray-50 cursor-pointer ${

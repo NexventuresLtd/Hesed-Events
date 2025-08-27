@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import { apiService } from "../services/api";
 import { Send, Users, MessageCircle, Search } from "lucide-react";
-import type { ChatMessage } from "../types";
+import type { ChatMessage, User } from "../types";
 
 export function Chat() {
   const { state, dispatch } = useApp();
@@ -11,52 +11,85 @@ export function Chat() {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // Mock users for private chat (in real app, this would come from API)
-  const availableUsers = [
-    { id: "2", name: "Jane Smith", role: "supervisor", online: true },
-    { id: "3", name: "Bob Wilson", role: "supervisor", online: false },
-    { id: "4", name: "Alice Brown", role: "supervisor", online: true },
-    { id: "5", name: "Tom Green", role: "employee", online: true },
-    { id: "6", name: "Sarah Johnson", role: "employee", online: false },
-  ].filter((user) => user.id !== state.user?.id);
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   // Load chat messages on component mount
   useEffect(() => {
     loadMessages();
   }, [activeTab, selectedUser]);
 
+  // Load users for private chat
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      const response = await apiService.getUsers();
+      // Handle paginated response - extract results array
+      const users = response.results;
+      // Filter out current user and map to frontend User type
+      const filteredUsers = users
+        .filter((user: any) => user.id.toString() !== state.user?.id)
+        .map((user: any) => ({
+          id: user.id.toString(),
+          name: user.full_name || `${user.first_name} ${user.last_name}`.trim() || user.username,
+          email: user.email,
+          role: user.role,
+          username: user.username,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          is_active: user.is_active,
+          institutionName: user.institution_name,
+        }));
+      setAvailableUsers(filteredUsers);
+    } catch (error) {
+      console.error("Error loading users:", error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
   const loadMessages = async () => {
     try {
       setIsLoading(true);
-      let fetchedMessages;
+      let response;
 
       if (activeTab === "group") {
-        // Load group messages (project-based)
-        fetchedMessages = await apiService.getChatMessages();
+        // Load group messages
+        response = await apiService.getChatMessages("group");
       } else if (selectedUser) {
         // Load private messages with selected user
-        fetchedMessages = await apiService.getChatMessages(
-          undefined,
+        response = await apiService.getChatMessages(
+          "private",
           parseInt(selectedUser)
         );
       }
 
       // Convert API messages to frontend format and add them to app context
-      if (fetchedMessages) {
-        const convertedMessages: ChatMessage[] = fetchedMessages.map(
-          (msg: any) => ({
+      if (response && response.results) {
+        // Filter out existing messages to avoid duplicates
+        const existingMessageIds = new Set(
+          activeTab === "group"
+            ? state.groupMessages.map((m) => m.id)
+            : state.privateMessages.map((m) => m.id)
+        );
+
+        const convertedMessages: ChatMessage[] = response.results
+          .filter((msg: any) => !existingMessageIds.has(msg.id.toString()))
+          .map((msg: any) => ({
             id: msg.id.toString(),
             senderId: msg.sender.toString(),
             senderName: msg.sender_name || "Unknown User",
             senderRole: msg.sender_role || "employee",
-            content: msg.message,
+            content: msg.content,
             timestamp: msg.timestamp,
             chatType: activeTab,
             recipientId:
               activeTab === "private" ? selectedUser || undefined : undefined,
-          })
-        );
+          }));
 
         // Add each message individually since we don't have bulk actions
         convertedMessages.forEach((message) => {
@@ -81,15 +114,11 @@ export function Chat() {
       setIsLoading(true);
 
       const messageData = {
-        message: message.trim(),
-        is_group_message: activeTab === "group",
+        content: message.trim(),
+        chat_type: activeTab,
         ...(activeTab === "private" &&
           selectedUser && {
             recipient: parseInt(selectedUser),
-          }),
-        ...(activeTab === "group" &&
-          state.projects.length > 0 && {
-            project: parseInt(state.projects[0].id),
           }),
       };
 
@@ -101,7 +130,7 @@ export function Chat() {
         senderId: state.user.id,
         senderName: state.user.name,
         senderRole: state.user.role,
-        content: sentMessage.message,
+        content: sentMessage.content,
         timestamp: sentMessage.timestamp,
         chatType: activeTab,
         recipientId:
@@ -154,10 +183,10 @@ export function Chat() {
     activeTab === "group" ? getGroupMessages() : getPrivateMessages();
 
   return (
-    <div className="h-[calc(100vh-180px)] flex">
+    <div className="h-[calc(100vh-180px)] flex flex-col lg:flex-row">
       {/* Sidebar - User list for private chat */}
       {activeTab === "private" && (
-        <div className="w-80 bg-white border-r border-muted/20 flex flex-col">
+        <div className="w-full lg:w-80 bg-white border-b lg:border-r lg:border-b-0 border-muted/20 flex flex-col lg:max-h-none max-h-64 lg:min-h-0">
           <div className="p-4 border-b border-muted/20">
             <h3 className="font-semibold text-text mb-3">Contacts</h3>
             <div className="relative">
@@ -176,36 +205,44 @@ export function Chat() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {filteredUsers.map((user) => (
-              <button
-                key={user.id}
-                onClick={() => setSelectedUser(user.id)}
-                className={`w-full p-4 text-left hover:bg-muted/5 transition-colors border-b border-muted/10 ${
-                  selectedUser === user.id
-                    ? "bg-primary/5 border-l-4 border-l-primary"
-                    : ""
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary">
-                        {user.name.charAt(0)}
-                      </span>
+            {loadingUsers ? (
+              <div className="p-4 text-center text-muted">Loading users...</div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="p-4 text-center text-muted">No users found</div>
+            ) : (
+              filteredUsers.map((user) => (
+                <button
+                  key={user.id}
+                  onClick={() => setSelectedUser(user.id)}
+                  className={`w-full p-4 text-left hover:bg-muted/5 transition-colors border-b border-muted/10 ${
+                    selectedUser === user.id
+                      ? "bg-primary/5 border-l-4 border-l-primary"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-primary">
+                          {user.name.charAt(0)}
+                        </span>
+                      </div>
+                      {user.is_active && (
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                      )}
                     </div>
-                    {user.online && (
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-text truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-sm text-muted capitalize">
+                        {user.role}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-text truncate">
-                      {user.name}
-                    </p>
-                    <p className="text-sm text-muted capitalize">{user.role}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))
+            )}
           </div>
         </div>
       )}
@@ -214,12 +251,12 @@ export function Chat() {
       <div className="flex-1 flex flex-col bg-white">
         {/* Header */}
         <div className="p-4 border-b border-muted/20">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-text">
+              <h1 className="text-xl sm:text-2xl font-bold text-text">
                 {activeTab === "group" ? "Group Chat" : "Private Messages"}
               </h1>
-              <p className="text-muted">
+              <p className="text-muted text-sm sm:text-base">
                 {activeTab === "group"
                   ? "Communicate with all team members"
                   : selectedUser
@@ -231,28 +268,28 @@ export function Chat() {
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex bg-muted/10 rounded-lg p-1">
+            <div className="flex bg-muted/10 rounded-lg p-1 w-full sm:w-auto">
               <button
                 onClick={() => setActiveTab("group")}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
                   activeTab === "group"
                     ? "bg-white text-primary shadow-sm"
                     : "text-muted hover:text-text"
                 }`}
               >
                 <Users size={16} />
-                <span>Group</span>
+                <span className="hidden sm:inline">Group</span>
               </button>
               <button
                 onClick={() => setActiveTab("private")}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2 ${
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
                   activeTab === "private"
                     ? "bg-white text-primary shadow-sm"
                     : "text-muted hover:text-text"
                 }`}
               >
                 <MessageCircle size={16} />
-                <span>Private</span>
+                <span className="hidden sm:inline">Private</span>
               </button>
             </div>
           </div>
