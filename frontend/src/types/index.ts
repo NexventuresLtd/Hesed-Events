@@ -1,10 +1,15 @@
 export interface User {
   id: string;
+  username?: string;
   name: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
   role: 'admin' | 'supervisor' | 'employee' | 'observer';
   institutionId?: string;
   institutionName?: string;
+  phone?: string;
+  is_active?: boolean;
 }
 
 export interface Institution {

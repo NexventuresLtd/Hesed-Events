@@ -12,13 +12,15 @@ interface UserModalProps {
 }
 
 export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
-  const { loadInitialData } = useApp();
+  const { state, loadInitialData } = useApp();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     first_name: "",
     last_name: "",
     role: "employee" as "admin" | "supervisor" | "employee" | "observer",
+    institution: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -30,11 +32,13 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
     if (isOpen) {
       if (mode === "edit" && user) {
         setFormData({
-          username: user.name || "",
+          username: user.username || user.name || "",
           email: user.email || "",
-          first_name: "",
-          last_name: "",
+          first_name: user.first_name || "",
+          last_name: user.last_name || "",
           role: user.role || "employee",
+          institution: user.institutionId || "",
+          phone: user.phone || "",
           password: "",
           confirmPassword: "",
         });
@@ -45,6 +49,8 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
           first_name: "",
           last_name: "",
           role: "employee",
+          institution: "",
+          phone: "",
           password: "",
           confirmPassword: "",
         });
@@ -74,22 +80,36 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
 
     try {
       if (mode === "create") {
-        await apiService.createUser({
+        const userData = {
           username: formData.username,
           email: formData.email,
           first_name: formData.first_name,
           last_name: formData.last_name,
           role: formData.role,
+          phone: formData.phone,
           password: formData.password,
-        });
+        } as any;
+
+        if (formData.institution) {
+          userData.institution = parseInt(formData.institution);
+        }
+
+        await apiService.createUser(userData);
       } else if (user) {
-        await apiService.updateUser(parseInt(user.id), {
+        const userData = {
           username: formData.username,
           email: formData.email,
           first_name: formData.first_name,
           last_name: formData.last_name,
           role: formData.role,
-        });
+          phone: formData.phone,
+        } as any;
+
+        if (formData.institution) {
+          userData.institution = parseInt(formData.institution);
+        }
+
+        await apiService.updateUser(parseInt(user.id), userData);
       }
 
       // Reload data to get updated users
@@ -110,10 +130,10 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-muted/20">
+        <div className="flex items-center justify-between p-6 border-b border-muted/20 flex-shrink-0">
           <h2 className="text-xl font-semibold text-text">
             {mode === "create" ? "Create New User" : "Edit User"}
           </h2>
@@ -125,154 +145,203 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-              {error}
-            </div>
-          )}
+        {/* Form - Scrollable */}
+        <div className="flex-1 overflow-y-auto">
+          <form
+            id="user-form"
+            onSubmit={handleSubmit}
+            className="p-6 space-y-4"
+          >
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
 
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-text mb-2"
-            >
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              placeholder="Enter username"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-text mb-2"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              placeholder="Enter email"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div>
               <label
-                htmlFor="first_name"
+                htmlFor="username"
                 className="block text-sm font-medium text-text mb-2"
               >
-                First Name
+                Username
               </label>
               <input
                 type="text"
-                id="first_name"
-                name="first_name"
-                value={formData.first_name}
+                id="username"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
+                required
                 className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="First name"
+                placeholder="Enter username"
               />
             </div>
+
             <div>
               <label
-                htmlFor="last_name"
+                htmlFor="email"
                 className="block text-sm font-medium text-text mb-2"
               >
-                Last Name
+                Email
               </label>
               <input
-                type="text"
-                id="last_name"
-                name="last_name"
-                value={formData.last_name}
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
+                required
                 className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Last name"
+                placeholder="Enter email"
               />
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-text mb-2"
-            >
-              Role
-            </label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-            >
-              <option value="admin">Admin</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="employee">Employee</option>
-              <option value="observer">Observer</option>
-            </select>
-          </div>
-
-          {mode === "create" && (
-            <>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label
-                  htmlFor="password"
+                  htmlFor="first_name"
                   className="block text-sm font-medium text-text mb-2"
                 >
-                  Password
+                  First Name
                 </label>
                 <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
+                  type="text"
+                  id="first_name"
+                  name="first_name"
+                  value={formData.first_name}
                   onChange={handleChange}
-                  required
                   className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  placeholder="Enter password"
+                  placeholder="First name"
                 />
               </div>
-
               <div>
                 <label
-                  htmlFor="confirmPassword"
+                  htmlFor="last_name"
                   className="block text-sm font-medium text-text mb-2"
                 >
-                  Confirm Password
+                  Last Name
                 </label>
                 <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
+                  type="text"
+                  id="last_name"
+                  name="last_name"
+                  value={formData.last_name}
                   onChange={handleChange}
-                  required
                   className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  placeholder="Confirm password"
+                  placeholder="Last name"
                 />
               </div>
-            </>
-          )}
+            </div>
 
-          {/* Actions */}
-          <div className="flex space-x-3 pt-4">
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-text mb-2"
+              >
+                Phone
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                placeholder="Phone number"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="institution"
+                className="block text-sm font-medium text-text mb-2"
+              >
+                Institution
+              </label>
+              <select
+                id="institution"
+                name="institution"
+                value={formData.institution}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              >
+                <option value="">Select an institution</option>
+                {state.institutions.map((institution) => (
+                  <option key={institution.id} value={institution.id}>
+                    {institution.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-text mb-2"
+              >
+                Role
+              </label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              >
+                <option value="admin">Admin</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="employee">Employee</option>
+                <option value="observer">Observer</option>
+              </select>
+            </div>
+
+            {mode === "create" && (
+              <>
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-text mb-2"
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    placeholder="Enter password"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-text mb-2"
+                  >
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    placeholder="Confirm password"
+                  />
+                </div>
+              </>
+            )}
+          </form>
+        </div>
+
+        {/* Actions - Fixed at bottom */}
+        <div className="p-6 border-t border-muted/20 flex-shrink-0">
+          <div className="flex space-x-3">
             <button
               type="button"
               onClick={onClose}
@@ -282,6 +351,7 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
             </button>
             <button
               type="submit"
+              form="user-form"
               disabled={isLoading}
               className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
@@ -293,7 +363,7 @@ export function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
               <span>{mode === "create" ? "Create" : "Update"}</span>
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

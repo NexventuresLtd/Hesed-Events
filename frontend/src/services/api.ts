@@ -93,6 +93,10 @@ class ApiService {
       throw new Error(`API Error: ${response.status} - ${text}`);
     }
 
+    if (response.status === 204) {
+      // No Content
+      return {} as T;
+    }
     return response.json();
   }
 

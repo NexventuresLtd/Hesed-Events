@@ -28,11 +28,16 @@ export function UsersPage() {
       const convertedUsers: User[] = (fetchedUsers as any)?.results?.map(
         (user: any) => ({
           id: user.id.toString(),
+          username: user.username,
           name: `${user.first_name} ${user.last_name}`.trim() || user.username,
           email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
           role: user.role,
           institutionId: user.institution?.toString() || undefined,
           institutionName: user.institution_name || undefined,
+          phone: user.phone || undefined,
+          is_active: user.is_active,
         })
       );
 

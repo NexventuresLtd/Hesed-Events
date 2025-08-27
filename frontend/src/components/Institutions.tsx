@@ -1,12 +1,73 @@
 import { useState } from "react";
 import { useApp } from "../context/AppContext";
+import { apiService } from "../services/api";
 import { Building2, Users, Plus, Edit, Trash2 } from "lucide-react";
 
 export function Institutions() {
-  const { state } = useApp();
+  const { state, loadInitialData } = useApp();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    supervisor: "",
+  });
 
   const canManageInstitutions = state.user?.role === "admin";
+
+  // For now, we'll create a simple institution without supervisor
+  // The supervisor functionality can be added later when the backend supports it
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim()) {
+      setError("Institution name is required");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await apiService.createInstitution({
+        name: formData.name.trim(),
+        type: "Educational", // Default type
+        location: "", // Default empty location
+      });
+
+      // Reload data to reflect the new institution
+      await loadInitialData();
+
+      // Reset form and close modal
+      setFormData({ name: "", supervisor: "" });
+      setShowAddForm(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create institution"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteInstitution = async (institutionId: string) => {
+    if (window.confirm("Are you sure you want to delete this institution?")) {
+      try {
+        await apiService.deleteInstitution(parseInt(institutionId));
+        await loadInitialData(); // Reload data after deletion
+      } catch (err) {
+        console.error("Error deleting institution:", err);
+        alert("Failed to delete institution");
+      }
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div className="space-y-6">
@@ -37,41 +98,46 @@ export function Institutions() {
             <h3 className="text-lg font-semibold text-text mb-4">
               Add New Institution
             </h3>
-            <form className="space-y-4">
+
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-text mb-2">
                   Institution Name
                 </label>
                 <input
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   placeholder="Enter institution name"
+                  required
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text mb-2">
-                  Supervisor
-                </label>
-                <select className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                  <option value="">Select a supervisor</option>
-                  <option value="1">Jane Smith</option>
-                  <option value="2">Bob Wilson</option>
-                  <option value="3">Alice Brown</option>
-                </select>
               </div>
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowAddForm(false)}
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setFormData({ name: "", supervisor: "" });
+                    setError(null);
+                  }}
                   className="px-4 py-2 text-muted hover:text-text transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                  disabled={isLoading}
+                  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add Institution
+                  {isLoading ? "Adding..." : "Add Institution"}
                 </button>
               </div>
             </form>
@@ -116,7 +182,10 @@ export function Institutions() {
                     <button className="p-2 text-muted hover:text-primary transition-colors">
                       <Edit size={16} />
                     </button>
-                    <button className="p-2 text-muted hover:text-red-600 transition-colors">
+                    <button
+                      onClick={() => handleDeleteInstitution(institution.id)}
+                      className="p-2 text-muted hover:text-red-600 transition-colors"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -124,13 +193,6 @@ export function Institutions() {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">Supervisor</span>
-                  <span className="text-sm font-medium text-text">
-                    {institution.supervisorName}
-                  </span>
-                </div>
-
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted">Total Tasks</span>
                   <span className="text-sm font-medium text-text">
