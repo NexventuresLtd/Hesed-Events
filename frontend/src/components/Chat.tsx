@@ -35,7 +35,10 @@ export function Chat() {
         .filter((user: any) => user.id.toString() !== state.user?.id)
         .map((user: any) => ({
           id: user.id.toString(),
-          name: user.full_name || `${user.first_name} ${user.last_name}`.trim() || user.username,
+          name:
+            user.full_name ||
+            `${user.first_name} ${user.last_name}`.trim() ||
+            user.username,
           email: user.email,
           role: user.role,
           username: user.username,
