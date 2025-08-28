@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useApp } from "../context/AppContext";
 import { apiService } from "../services/api";
 import { Send, Users, MessageCircle, Search } from "lucide-react";
@@ -6,13 +6,14 @@ import type { ChatMessage, User } from "../types";
 
 export function Chat() {
   const { state, dispatch } = useApp();
-  const [activeTab, setActiveTab] = useState<"group" | "private">("group");
+  const [activeTab, setActiveTab] = useState<"group" | "private">("private");
   const [message, setMessage] = useState("");
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load chat messages on component mount
   useEffect(() => {
@@ -24,6 +25,15 @@ export function Chat() {
     loadUsers();
   }, []);
 
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [state.groupMessages, state.privateMessages, activeTab, selectedUser]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const loadUsers = async () => {
     try {
       setLoadingUsers(true);
@@ -32,7 +42,7 @@ export function Chat() {
       const users = response.results;
       // Filter out current user and map to frontend User type
       const filteredUsers = users
-        .filter((user: any) => user.id.toString() !== state.user?.id)
+        .filter((user: any) => user.id.toString() !== state.user?.id.toString())
         .map((user: any) => ({
           id: user.id.toString(),
           name:
@@ -147,6 +157,9 @@ export function Chat() {
       }
 
       setMessage("");
+
+      // Scroll to bottom after sending message
+      setTimeout(() => scrollToBottom(), 100);
     } catch (error) {
       console.error("Error sending message:", error);
       alert("Failed to send message");
@@ -156,14 +169,15 @@ export function Chat() {
   };
 
   const getPrivateMessages = () => {
+    console.log(state.privateMessages, selectedUser);
     if (!selectedUser) return [];
-
     return state.privateMessages
       .filter(
         (msg) =>
-          (msg.senderId === state.user?.id &&
+          (msg.senderId === state.user?.id.toString() &&
             msg.recipientId === selectedUser) ||
-          (msg.senderId === selectedUser && msg.recipientId === state.user?.id)
+          (msg.senderId === selectedUser &&
+            msg.recipientId === state.user?.id.toString())
       )
       .sort(
         (a, b) =>
@@ -305,19 +319,19 @@ export function Chat() {
               <div
                 key={msg.id}
                 className={`flex ${
-                  msg.senderId === state.user?.id
+                  msg.senderId === state.user?.id.toString()
                     ? "justify-end"
                     : "justify-start"
                 }`}
               >
                 <div
                   className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    msg.senderId === state.user?.id
+                    msg.senderId === state.user?.id.toString()
                       ? "bg-primary text-white"
                       : "bg-muted/10 text-text"
                   }`}
                 >
-                  {msg.senderId !== state.user?.id && (
+                  {msg.senderId !== state.user?.id.toString() && (
                     <div className="text-xs font-medium mb-1 opacity-75">
                       {msg.senderName} • {msg.senderRole}
                     </div>
@@ -325,7 +339,7 @@ export function Chat() {
                   <p className="text-sm">{msg.content}</p>
                   <div
                     className={`text-xs mt-1 ${
-                      msg.senderId === state.user?.id
+                      msg.senderId === state.user?.id.toString()
                         ? "text-white/75"
                         : "text-muted"
                     }`}
@@ -352,6 +366,8 @@ export function Chat() {
               </div>
             </div>
           )}
+          {/* Invisible element to scroll to */}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Message Input */}
