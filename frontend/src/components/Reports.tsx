@@ -61,8 +61,8 @@ export function Reports() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="md:flex items-center justify-between">
+        <div className="mb-4 md:mb-0">
           <h1 className="text-3xl font-bold text-text">Reports & Analytics</h1>
           <p className="text-muted mt-1">
             Comprehensive project insights and progress tracking
