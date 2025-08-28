@@ -12,4 +12,5 @@ class ChatMessageSerializer(serializers.ModelSerializer):
             'id', 'sender', 'sender_name', 'sender_role', 'recipient', 
             'recipient_name', 'content', 'chat_type', 'timestamp', 'is_read'
         ]
-        read_only_fields = ['id', 'timestamp']
+        read_only_fields = ['id', 'sender', 'timestamp']
+        
