@@ -30,9 +30,18 @@ interface PaginatedResponse<T> {
 interface Institution {
   id: number;
   name: string;
-  type: string;
-  location: string;
+  description?: string;
+  supervisor?: number;
+  supervisor_name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  is_active?: boolean;
+  total_tasks?: number;
+  completed_tasks?: number;
+  completion_rate?: number;
   created_at: string;
+  updated_at?: string;
 }
 
 interface Project {
