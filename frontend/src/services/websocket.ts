@@ -20,12 +20,12 @@ export class ChatWebSocketService {
 
   constructor(
     roomName: string,
-    apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+    apiUrl = import.meta.env.VITE_API_BASE_URL.replace("/api", "") || 'http://localhost:8000',
     baseUrl = apiUrl.startsWith('http://')
         ? apiUrl.replace('http://', 'ws://')
         : apiUrl.startsWith('https://')
-            ? apiUrl.replace('https://', 'wss://')
-            : apiUrl
+            ? apiUrl.replace('https://', 'wss://').replace('/api', '/')
+            : apiUrl.replace('/api', '/')
   ) {
     this.roomName = roomName;
     this.baseUrl = baseUrl;
