@@ -53,14 +53,18 @@ def dashboard_stats_view(request):
         completed_tasks = Task.objects.filter(status='completed').count()
         in_progress_tasks = Task.objects.filter(status='in_progress').count()
     elif user.role in ['supervisor', 'employee']:
-        # Filter by user's assigned projects/tasks
-        user_projects = Project.objects.filter(
-            Q(created_by=user) | Q(assigned_users=user)
-        ).distinct()
+        # Filter by user's created projects and tasks assigned to user
+        user_created_projects = Project.objects.filter(created_by=user)
+        user_assigned_tasks = Task.objects.filter(assignee=user)
+        user_projects_from_tasks = Project.objects.filter(tasks__assignee=user).distinct()
+        
+        # Combine projects created by user and projects with tasks assigned to user
+        user_projects = user_created_projects.union(user_projects_from_tasks)
         total_projects = user_projects.count()
         
+        # Get all tasks assigned to user or in projects created by user
         user_tasks = Task.objects.filter(
-            Q(assigned_to=user) | Q(project__in=user_projects)
+            Q(assignee=user) | Q(project__created_by=user)
         ).distinct()
         total_tasks = user_tasks.count()
         completed_tasks = user_tasks.filter(status='completed').count()

@@ -18,22 +18,26 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
         project_id = self.request.query_params.get('project')
         recipient_id = self.request.query_params.get('recipient')
         
-        queryset = ChatMessage.objects.filter(
-            models.Q(sender=user) | models.Q(recipient=user)
-        ).order_by('-timestamp')
-        
-        if chat_type:
-            queryset = queryset.filter(chat_type=chat_type)
+        if chat_type == 'group':
+            # For group messages, return all group messages
+            queryset = ChatMessage.objects.filter(chat_type='group')
+        elif chat_type == 'private' and recipient_id:
+            # For private messages, return messages between current user and specified recipient
+            queryset = ChatMessage.objects.filter(
+                models.Q(sender=user, recipient_id=recipient_id) | 
+                models.Q(sender_id=recipient_id, recipient=user),
+                chat_type='private'
+            )
+        else:
+            # Default: all messages where user is sender or recipient
+            queryset = ChatMessage.objects.filter(
+                models.Q(sender=user) | models.Q(recipient=user)
+            )
         
         if project_id:
             queryset = queryset.filter(project_id=project_id)
-            
-        if recipient_id:
-            queryset = queryset.filter(
-                models.Q(sender_id=recipient_id) | models.Q(recipient_id=recipient_id)
-            )
         
-        return queryset
+        return queryset.order_by('-timestamp')
     
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)

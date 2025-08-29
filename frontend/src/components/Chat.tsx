@@ -1,7 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useApp } from "../context/AppContext";
 import { apiService } from "../services/api";
-import { Send, Users, MessageCircle, Search } from "lucide-react";
+import { useWebSocket } from "../hooks/useWebSocket";
+import {
+  Send,
+  Users,
+  MessageCircle,
+  Search,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import type { ChatMessage, User } from "../types";
 
 export function Chat() {
@@ -14,6 +22,38 @@ export function Chat() {
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Memoize the onMessage callback to prevent unnecessary re-renders
+  const onMessage = useCallback(
+    (newMessage: ChatMessage) => {
+      // Add the received message to the appropriate store
+      if (newMessage.chatType === "group") {
+        dispatch({ type: "ADD_GROUP_MESSAGE", payload: newMessage });
+      } else {
+        dispatch({ type: "ADD_PRIVATE_MESSAGE", payload: newMessage });
+      }
+    },
+    [dispatch]
+  );
+
+  // WebSocket connection for real-time messaging
+  // For private chats, create a consistent room name by sorting user IDs
+  const roomName =
+    activeTab === "group"
+      ? "general"
+      : selectedUser && state.user?.id
+      ? `private_${[state.user.id, selectedUser].sort().join("_")}`
+      : null;
+  const {
+    isConnected,
+    error: wsError,
+    sendMessage: sendWebSocketMessage,
+  } = useWebSocket({
+    roomName: roomName || "",
+    onMessage,
+    enabled:
+      !!state.user && !!roomName && (activeTab === "group" || !!selectedUser),
+  });
 
   // Load chat messages on component mount
   useEffect(() => {
@@ -101,7 +141,9 @@ export function Chat() {
             timestamp: msg.timestamp,
             chatType: activeTab,
             recipientId:
-              activeTab === "private" ? selectedUser || undefined : undefined,
+              activeTab === "private"
+                ? msg.recipient?.toString() || undefined
+                : undefined,
           }));
 
         // Add each message individually since we don't have bulk actions
@@ -126,37 +168,49 @@ export function Chat() {
     try {
       setIsLoading(true);
 
-      const messageData = {
-        content: message.trim(),
-        chat_type: activeTab,
-        ...(activeTab === "private" &&
-          selectedUser && {
-            recipient: parseInt(selectedUser),
-          }),
-      };
-
-      const sentMessage = await apiService.sendChatMessage(messageData);
-
-      // Convert API message to frontend format
-      const newMessage: ChatMessage = {
-        id: sentMessage.id.toString(),
-        senderId: state.user.id,
-        senderName: state.user.name,
-        senderRole: state.user.role,
-        content: sentMessage.content,
-        timestamp: sentMessage.timestamp,
-        chatType: activeTab,
-        recipientId:
+      // Try WebSocket first for real-time messaging
+      if (isConnected) {
+        sendWebSocketMessage(
+          message.trim(),
+          state.user.id,
           activeTab === "private" ? selectedUser || undefined : undefined,
-      };
-
-      if (activeTab === "group") {
-        dispatch({ type: "ADD_GROUP_MESSAGE", payload: newMessage });
+          activeTab
+        );
+        setMessage("");
       } else {
-        dispatch({ type: "ADD_PRIVATE_MESSAGE", payload: newMessage });
-      }
+        // Fallback to REST API if WebSocket is not connected
+        const messageData = {
+          content: message.trim(),
+          chat_type: activeTab,
+          ...(activeTab === "private" &&
+            selectedUser && {
+              recipient: parseInt(selectedUser),
+            }),
+        };
 
-      setMessage("");
+        const sentMessage = await apiService.sendChatMessage(messageData);
+
+        // Convert API message to frontend format
+        const newMessage: ChatMessage = {
+          id: sentMessage.id.toString(),
+          senderId: state.user.id,
+          senderName: state.user.name,
+          senderRole: state.user.role,
+          content: sentMessage.content,
+          timestamp: sentMessage.timestamp,
+          chatType: activeTab,
+          recipientId:
+            activeTab === "private" ? selectedUser || undefined : undefined,
+        };
+
+        if (activeTab === "group") {
+          dispatch({ type: "ADD_GROUP_MESSAGE", payload: newMessage });
+        } else {
+          dispatch({ type: "ADD_PRIVATE_MESSAGE", payload: newMessage });
+        }
+
+        setMessage("");
+      }
 
       // Scroll to bottom after sending message
       setTimeout(() => scrollToBottom(), 100);
@@ -270,9 +324,28 @@ export function Chat() {
         <div className="p-4 border-b border-muted/20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-text">
-                {activeTab === "group" ? "Group Chat" : "Private Messages"}
-              </h1>
+              <div className="flex items-center space-x-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-text">
+                  {activeTab === "group" ? "Group Chat" : "Private Messages"}
+                </h1>
+                {/* Connection Status Indicator */}
+                <div className="flex items-center space-x-1">
+                  {isConnected ? (
+                    <div title="Connected">
+                      <Wifi size={16} className="text-green-500" />
+                    </div>
+                  ) : (
+                    <div title="Disconnected">
+                      <WifiOff size={16} className="text-red-500" />
+                    </div>
+                  )}
+                  {wsError && (
+                    <span className="text-xs text-red-500 hidden sm:inline">
+                      Connection error
+                    </span>
+                  )}
+                </div>
+              </div>
               <p className="text-muted text-sm sm:text-base">
                 {activeTab === "group"
                   ? "Communicate with all team members"
