@@ -75,7 +75,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background text-text">
       {/* Header */}
-      <header className="bg-white z-[60] sticky border-b border-muted/20 px-4 sm:px-6 py-4 shadow-sm">
+      <header className="bg-white z-[60] sm:z-40 sticky border-b border-muted/20 px-4 sm:px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {/* Mobile menu button */}
