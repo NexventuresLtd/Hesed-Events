@@ -128,8 +128,14 @@ export function TaskModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-muted/20">
           <h2 className="text-xl font-semibold text-text">
