@@ -43,8 +43,8 @@ export function Login() {
       // Load initial data after successful login
       await loadInitialData();
 
-      // Navigate to dashboard
-      navigate("/dashboard");
+      // Navigate to overview
+      navigate("/overview");
     } catch (err) {
       console.log(err);
       setError(err instanceof Error ? err.message : "Login failed");

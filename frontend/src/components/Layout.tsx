@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   X,
+  ListTodo,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -28,6 +29,12 @@ export function Layout({ children }: LayoutProps) {
   const currentPage = location.pathname.split("/")[1] || "dashboard";
 
   const menuItems = [
+    {
+      id: "overview",
+      label: "Overview",
+      icon: ListTodo,
+      path: "/overview",
+    },
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/dashboard" },
     {
       id: "projects",
