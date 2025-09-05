@@ -412,7 +412,7 @@ export function Projects() {
                 {tasksByStatus.initial.length}
               </span>
             </div>
-            <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+            <div className="space-y-3">
               {tasksByStatus.initial.map((task) => (
                 <TaskCard
                   key={task.id}
