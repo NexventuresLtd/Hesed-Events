@@ -16,6 +16,13 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         related_name='created_projects'
     )
+    parent_project = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='sub_activities'
+    )
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     budget = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
@@ -50,3 +57,7 @@ class Project(models.Model):
         if total == 0:
             return 0
         return round((self.completed_tasks / total) * 100)
+    
+    @property
+    def is_sub_activity(self):
+        return self.parent_project is not None

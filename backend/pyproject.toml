@@ -1,0 +1,47 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "asgiref==3.9.1",
+    "async-timeout==5.0.1",
+    "attrs==25.3.0",
+    "autobahn==24.4.2",
+    "automat==25.4.16",
+    "cffi==1.17.1",
+    "channels==4.3.1",
+    "channels-redis==4.3.0",
+    "constantly==23.10.4",
+    "cryptography==45.0.6",
+    "daphne==4.2.1",
+    "dj-database-url==3.0.1",
+    "django==5.2.5",
+    "django-cors-headers==4.7.0",
+    "djangorestframework==3.16.1",
+    "djangorestframework-simplejwt==5.5.1",
+    "gunicorn==23.0.0",
+    "hyperlink==21.0.0",
+    "idna==3.10",
+    "incremental==24.7.2",
+    "msgpack==1.1.1",
+    "packaging==25.0",
+    "pillow==11.3.0",
+    "psycopg2-binary==2.9.10",
+    "pyasn1==0.6.1",
+    "pyasn1-modules==0.4.2",
+    "pycparser==2.22",
+    "pyjwt==2.10.1",
+    "pyopenssl==25.1.0",
+    "python-decouple==3.8",
+    "python-dotenv==1.1.1",
+    "redis==6.4.0",
+    "service-identity==24.2.0",
+    "sqlparse==0.5.3",
+    "twisted==25.5.0",
+    "txaio==25.6.1",
+    "typing-extensions==4.15.0",
+    "tzdata==2025.2",
+    "zope-interface==7.2",
+]

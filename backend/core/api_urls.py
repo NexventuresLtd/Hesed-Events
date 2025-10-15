@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from projects.views import ProjectViewSet
+from projects.views import ProjectViewSet, daily_summary, generate_report
 from institutions.views import InstitutionViewSet
 from tasks.views import TaskViewSet
 from users.views import UserViewSet
@@ -15,5 +15,7 @@ router.register(r'chat/messages', ChatMessageViewSet, basename='chatmessage')
 
 urlpatterns = [
     path('auth/', include('users.auth_urls')),
+    path('daily-summary/', daily_summary, name='daily-summary'),
+    path('generate-report/', generate_report, name='generate-report'),
     path('', include(router.urls)),
 ]

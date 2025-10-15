@@ -26,6 +26,12 @@ export interface Project {
   createdAt: string;
   createdBy: string;
   status: 'active' | 'completed' | 'planning' | 'on_hold';
+  parent_project?: string;
+  parent_project_title?: string;
+  is_sub_activity?: boolean;
+  sub_activities?: Project[];
+  start_date?: string;
+  end_date?: string;
   tasks: Task[];
 }
 
@@ -45,6 +51,7 @@ export interface Task {
   updatedAt: string;
   comments: Comment[];
   evidence: Evidence[];
+  comment_count?: number;
 }
 
 export interface Comment {
@@ -87,4 +94,58 @@ export interface DashboardStats {
   overdueTask: number;
   institutionsCount: number;
   activeUsers: number;
+}
+
+export interface DailySummary {
+  date: string;
+  tasks_created: {
+    count: number;
+    items: Array<{
+      id: number;
+      title: string;
+      project: string;
+      assignee: string;
+      status: string;
+    }>;
+  };
+  tasks_completed: {
+    count: number;
+    items: Array<{
+      id: number;
+      title: string;
+      project: string;
+      assignee: string;
+      completed_at: string;
+    }>;
+  };
+  tasks_updated: {
+    count: number;
+    items: Array<{
+      id: number;
+      title: string;
+      project: string;
+      assignee: string;
+      status: string;
+      progress: number;
+    }>;
+  };
+  projects_created: {
+    count: number;
+    items: Array<{
+      id: number;
+      title: string;
+      status: string;
+      created_by: string;
+    }>;
+  };
+  overdue_tasks: {
+    count: number;
+    items: Array<{
+      id: number;
+      title: string;
+      project: string;
+      assignee: string;
+      due_date: string | null;
+    }>;
+  };
 }

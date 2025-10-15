@@ -174,9 +174,38 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           id: project.id.toString(),
           title: project.title,
           description: project.description,
-          createdAt: project.start_date,
+          createdAt: project.created_at,
           createdBy: project.created_by_name,
-          status: project.status as "active" | "completed" | "paused",
+          status: project.status as
+            | "active"
+            | "completed"
+            | "planning"
+            | "on_hold",
+          parent_project: project.parent_project?.toString() || null,
+          parent_project_title: project.parent_project_title,
+          is_sub_activity: project.is_sub_activity || false,
+          sub_activities:
+            project.sub_activities?.map((sub: any) => ({
+              id: sub.id.toString(),
+              title: sub.title,
+              description: sub.description,
+              createdAt: sub.created_at,
+              createdBy: sub.created_by_name,
+              status: sub.status as
+                | "active"
+                | "completed"
+                | "planning"
+                | "on_hold",
+              parent_project: sub.parent_project?.toString() || null,
+              parent_project_title: sub.parent_project_title,
+              is_sub_activity: true,
+              sub_activities: [],
+              start_date: sub.start_date,
+              end_date: sub.end_date,
+              tasks: [],
+            })) || [],
+          start_date: project.start_date,
+          end_date: project.end_date,
           tasks: [],
         })) || [];
 

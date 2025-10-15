@@ -17,16 +17,24 @@ export function ProjectModal({
   project,
   mode,
 }: ProjectModalProps) {
-  const { loadInitialData } = useApp();
+  const { loadInitialData, state } = useApp();
   const [formData, setFormData] = useState({
     title: project?.title || "",
     description: project?.description || "",
     status:
       project?.status ||
       ("active" as "active" | "completed" | "planning" | "on_hold"),
+    parent_project: project?.parent_project || "",
+    start_date: project?.start_date ? project.start_date.split("T")[0] : "",
+    end_date: project?.end_date ? project.end_date.split("T")[0] : "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Get available parent projects (exclude current project if editing)
+  const availableParentProjects = state.projects.filter(
+    (p) => p.id !== project?.id && !p.is_sub_activity
+  );
 
   if (!isOpen) return null;
 
@@ -36,18 +44,19 @@ export function ProjectModal({
     setError(null);
 
     try {
+      const projectData: any = {
+        title: formData.title,
+        description: formData.description,
+        status: formData.status,
+        parent_project: formData.parent_project || undefined,
+        start_date: formData.start_date || undefined,
+        end_date: formData.end_date || undefined,
+      };
+
       if (mode === "create") {
-        await apiService.createProject({
-          title: formData.title,
-          description: formData.description,
-          status: formData.status,
-        });
+        await apiService.createProject(projectData);
       } else if (project) {
-        await apiService.updateProject(parseInt(project.id), {
-          title: formData.title,
-          description: formData.description,
-          status: formData.status,
-        });
+        await apiService.updateProject(parseInt(project.id), projectData);
       }
 
       // Reload data to get updated projects
@@ -150,6 +159,65 @@ export function ProjectModal({
               <option value="planning">Planning</option>
               <option value="on_hold">On Hold</option>
             </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="parent_project"
+              className="block text-sm font-medium text-text mb-2"
+            >
+              Parent Project (Optional - for Sub-Activities)
+            </label>
+            <select
+              id="parent_project"
+              name="parent_project"
+              value={formData.parent_project}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            >
+              <option value="">None - This is a main project</option>
+              {availableParentProjects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="start_date"
+                className="block text-sm font-medium text-text mb-2"
+              >
+                Start Date
+              </label>
+              <input
+                type="date"
+                id="start_date"
+                name="start_date"
+                value={formData.start_date}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="end_date"
+                className="block text-sm font-medium text-text mb-2"
+              >
+                End Date
+              </label>
+              <input
+                type="date"
+                id="end_date"
+                name="end_date"
+                value={formData.end_date}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
           </div>
 
           {/* Actions */}

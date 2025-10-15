@@ -7,6 +7,8 @@ import {
   PieChart,
   BarChart3,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export function Reports() {
   const { state } = useApp();
@@ -52,10 +54,170 @@ export function Reports() {
   ];
 
   const handleDownloadPDF = () => {
-    // In a real application, this would generate and download a PDF
-    alert(
-      "PDF report will be generated and downloaded. This is a demo implementation."
-    );
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Header with logo/title
+      doc.setFillColor(151, 170, 26); // Primary color
+      doc.rect(0, 0, pageWidth, 30, "F");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont(undefined, "bold");
+      doc.text("Hesed Events", 14, 15);
+
+      doc.setFontSize(12);
+      doc.setFont(undefined, "normal");
+      doc.text("Project Management Report", 14, 23);
+
+      // Reset text color
+      doc.setTextColor(0, 0, 0);
+
+      // Report date
+      doc.setFontSize(10);
+      doc.text(
+        `Generated: ${new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}`,
+        14,
+        40
+      );
+      doc.text(
+        `Period: ${
+          selectedPeriod.charAt(0).toUpperCase() + selectedPeriod.slice(1)
+        }`,
+        14,
+        45
+      );
+
+      // Key Metrics Section
+      doc.setFontSize(16);
+      doc.setFont(undefined, "bold");
+      doc.text("Key Metrics", 14, 55);
+
+      doc.setFontSize(10);
+      doc.setFont(undefined, "normal");
+
+      const metrics = [
+        ["Metric", "Value"],
+        ["Total Tasks", totalTasks.toString()],
+        ["Completed Tasks", completedTasks.toString()],
+        ["Completion Rate", `${completionRate}%`],
+        [
+          "Active Projects",
+          state.projects.filter((p) => p.status === "active").length.toString(),
+        ],
+        ["Total Institutions", state.stats.institutionsCount.toString()],
+        ["Active Team Members", state.stats.activeUsers.toString()],
+      ];
+
+      autoTable(doc, {
+        startY: 60,
+        head: [metrics[0]],
+        body: metrics.slice(1),
+        theme: "grid",
+        headStyles: { fillColor: [151, 170, 26], textColor: [255, 255, 255] },
+        styles: { fontSize: 10 },
+        margin: { left: 14, right: 14 },
+      });
+
+      // Progress by Institution
+      let finalY = (doc as any).lastAutoTable.finalY + 10;
+
+      doc.setFontSize(16);
+      doc.setFont(undefined, "bold");
+      doc.text("Progress by Institution", 14, finalY);
+
+      const institutionData = [
+        ["Institution", "Total Tasks", "Completed", "Completion Rate"],
+        ...progressByInstitution.map((inst) => [
+          inst.name,
+          inst.totalTasks.toString(),
+          inst.completedTasks.toString(),
+          `${inst.completionRate}%`,
+        ]),
+      ];
+
+      autoTable(doc, {
+        startY: finalY + 5,
+        head: [institutionData[0]],
+        body: institutionData.slice(1),
+        theme: "striped",
+        headStyles: { fillColor: [151, 170, 26], textColor: [255, 255, 255] },
+        styles: { fontSize: 9 },
+        margin: { left: 14, right: 14 },
+      });
+
+      // Add new page for project details
+      doc.addPage();
+
+      // Project Summary
+      doc.setFontSize(16);
+      doc.setFont(undefined, "bold");
+      doc.text("Project Summary", 14, 20);
+
+      const projectData = [
+        ["Project", "Tasks", "Progress", "Status", "Created"],
+        ...state.projects.map((project) => {
+          const projectCompleted = project.tasks.filter(
+            (t) => t.status === "completed"
+          ).length;
+          const projectProgress =
+            project.tasks.length > 0
+              ? Math.round((projectCompleted / project.tasks.length) * 100)
+              : 0;
+
+          return [
+            project.title.substring(0, 30) +
+              (project.title.length > 30 ? "..." : ""),
+            project.tasks.length.toString(),
+            `${projectProgress}%`,
+            project.status,
+            new Date(project.createdAt).toLocaleDateString(),
+          ];
+        }),
+      ];
+
+      autoTable(doc, {
+        startY: 25,
+        head: [projectData[0]],
+        body: projectData.slice(1),
+        theme: "striped",
+        headStyles: { fillColor: [151, 170, 26], textColor: [255, 255, 255] },
+        styles: { fontSize: 9 },
+        margin: { left: 14, right: 14 },
+      });
+
+      // Footer on each page
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: "center" }
+        );
+        doc.text(
+          "© Hesed Events Management System",
+          14,
+          doc.internal.pageSize.getHeight() - 10
+        );
+      }
+
+      // Save the PDF
+      doc.save(
+        `hesed_events_report_${new Date().toISOString().split("T")[0]}.pdf`
+      );
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF report. Please try again.");
+    }
   };
 
   return (

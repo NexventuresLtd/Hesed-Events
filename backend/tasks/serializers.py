@@ -8,7 +8,7 @@ class TaskCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskComment
         fields = ['id', 'content', 'author', 'author_name', 'author_role', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'author', 'created_at']
 
 class TaskEvidenceSerializer(serializers.ModelSerializer):
     uploaded_by_name = serializers.CharField(source='uploaded_by.full_name', read_only=True)

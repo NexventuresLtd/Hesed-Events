@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
+import { useDarkMode } from "../context/DarkModeContext";
 import {
   Home,
   FolderKanban,
@@ -13,6 +14,10 @@ import {
   Menu,
   X,
   ListTodo,
+  Moon,
+  Sun,
+  CalendarDays,
+  CheckSquare,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -21,6 +26,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { state, dispatch } = useApp();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -35,6 +41,12 @@ export function Layout({ children }: LayoutProps) {
       icon: ListTodo,
       path: "/overview",
     },
+    {
+      id: "task-overview",
+      label: "Task Overview",
+      icon: CheckSquare,
+      path: "/task-overview",
+    },
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/dashboard" },
     {
       id: "projects",
@@ -42,6 +54,13 @@ export function Layout({ children }: LayoutProps) {
       icon: FolderKanban,
       path: "/projects",
     },
+    {
+      id: "tasks",
+      label: "Tasks",
+      icon: CheckSquare,
+      path: "/tasks",
+    },
+
     {
       id: "institutions",
       label: "Institutions",
@@ -51,6 +70,12 @@ export function Layout({ children }: LayoutProps) {
     { id: "chat", label: "Chat", icon: MessageSquare, path: "/chat" },
     { id: "reports", label: "Reports", icon: BarChart3, path: "/reports" },
     { id: "users", label: "Users", icon: Users, path: "/users" },
+    {
+      id: "summary",
+      label: "Daily Summary",
+      icon: CalendarDays,
+      path: "/summary",
+    },
   ];
 
   // Filter menu items based on user role
@@ -97,11 +122,21 @@ export function Layout({ children }: LayoutProps) {
               Hesed Events
             </h1>
             <div className="hidden lg:block text-sm text-muted">
-              Event Management Platform
+              Project Management Platform
             </div>
           </div>
 
           <div className="flex items-center space-x-2 sm:space-x-4">
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 hover:bg-muted/10 rounded-lg transition-colors"
+              title={
+                isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"
+              }
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
             <button className="p-2 hover:bg-muted/10 rounded-lg transition-colors">
               <Bell size={20} />
             </button>
@@ -184,7 +219,7 @@ export function Layout({ children }: LayoutProps) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6 md:ml-0 min-h-[calc(100vh-80px)] overflow-x-auto">
+        <main className="flex-1 p-4 sm:p-6 md:ml-0 min-h-[calc(100vh-80px)] overflow-x-auto dark:bg-gray-950">
           {children}
         </main>
       </div>

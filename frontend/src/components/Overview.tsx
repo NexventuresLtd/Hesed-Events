@@ -77,7 +77,8 @@ export function Overview() {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiService.getTasks() as unknown as PaginatedTaskResponse;
+      const response =
+        (await apiService.getTasks()) as unknown as PaginatedTaskResponse;
       // Extract the tasks and pagination info from the response
       setTasks(response.results);
       setTotalCount(response.count);
@@ -179,9 +180,8 @@ export function Overview() {
   }
 
   const totalTasks = tasks.length;
-  const completedTasks = tasks && tasks.filter(
-    (task) => task.status === "completed"
-  ).length;
+  const completedTasks =
+    tasks && tasks.filter((task) => task.status === "completed").length;
   const inProgressTasks = tasks.filter(
     (task) => task.status === "in_progress"
   ).length;
@@ -325,10 +325,10 @@ export function Overview() {
                 <thead className="bg-muted/5 border-b border-muted/20">
                   <tr>
                     <th className="text-left p-4 font-medium text-text">
-                      Task
+                      Project
                     </th>
                     <th className="text-left p-4 font-medium text-text">
-                      Project
+                      Task
                     </th>
                     <th className="text-left p-4 font-medium text-text">
                       Assigned To
@@ -357,6 +357,9 @@ export function Overview() {
                         className="border-b border-muted/10 hover:bg-muted/5 transition-colors"
                       >
                         <td className="p-4">
+                          <div className="text-text">{task.project_title}</div>
+                        </td>
+                        <td className="p-4">
                           <div>
                             <div className="font-medium text-text">
                               {task.title}
@@ -367,9 +370,6 @@ export function Overview() {
                               </div>
                             )}
                           </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="text-text">{task.project_title}</div>
                         </td>
                         <td className="p-4">
                           <div className="flex items-center space-x-2">

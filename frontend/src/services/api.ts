@@ -294,6 +294,40 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // Daily Summary
+  async getDailySummary(date?: string): Promise<any> {
+    const endpoint = date ? `/daily-summary/?date=${date}` : '/daily-summary/';
+    return this.request(endpoint);
+  }
+
+  // Reports
+  async downloadReport(type: 'summary' | 'tasks' | 'projects' = 'summary'): Promise<Blob> {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(`${API_BASE_URL}/generate-report/?type=${type}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate report');
+    }
+
+    return response.blob();
+  }
+
+  // Task Comments
+  async getTaskComments(taskId: number): Promise<any[]> {
+    return this.request(`/tasks/${taskId}/comments/`);
+  }
+
+  async addTaskComment(taskId: number, content: string): Promise<any> {
+    return this.request(`/tasks/${taskId}/comments/`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    });
+  }
 }
 
 export const apiService = new ApiService();
