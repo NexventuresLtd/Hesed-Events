@@ -196,7 +196,8 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server
     "http://127.0.0.1:5173",
-    "https://hesed-events.netlify.app"
+    "https://hesed-events.netlify.app",
+    "https://events.hesedadvocates.com"
 ]
 
 # Email configuration
