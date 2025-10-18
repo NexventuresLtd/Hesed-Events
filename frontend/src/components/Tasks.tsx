@@ -35,8 +35,7 @@ export function Tasks() {
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.assigneeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.institutionName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.projectName.toLowerCase().includes(searchTerm.toLowerCase());
+      task.institutionName.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || task.status === statusFilter;
@@ -565,7 +564,8 @@ export function Tasks() {
             setIsCommentsModalOpen(false);
             setCommentsTask(null);
           }}
-          task={commentsTask}
+          taskId={commentsTask.id}
+          taskTitle={commentsTask.title}
         />
       )}
     </div>

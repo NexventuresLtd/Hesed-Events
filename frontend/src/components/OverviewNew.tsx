@@ -85,39 +85,41 @@ export function OverviewNew() {
       const tasksResponse: any = await apiService.getTasks();
 
       // Group tasks by project
-      const projectsWithTasks = projectsResponse?.results?.map((project: any) => {
-        const projectTasks = tasksResponse.results.filter(
-          (task: TaskOverview) => task.project === project.id
-        );
+      const projectsWithTasks = projectsResponse?.results?.map(
+        (project: any) => {
+          const projectTasks = tasksResponse.results.filter(
+            (task: TaskOverview) => task.project === project.id
+          );
 
-        return {
-          id: project.id,
-          title: project.title,
-          description: project.description,
-          status: project.status,
-          total_tasks: projectTasks.length,
-          completed_tasks: projectTasks.filter(
-            (t: TaskOverview) => t.status === "completed"
-          ).length,
-          in_progress_tasks: projectTasks.filter(
-            (t: TaskOverview) => t.status === "in_progress"
-          ).length,
-          initial_tasks: projectTasks.filter(
-            (t: TaskOverview) => t.status === "initial"
-          ).length,
-          completion_percentage:
-            projectTasks.length > 0
-              ? Math.round(
-                  (projectTasks.filter(
-                    (t: TaskOverview) => t.status === "completed"
-                  ).length /
-                    projectTasks.length) *
-                    100
-                )
-              : 0,
-          tasks: projectTasks,
-        };
-      });
+          return {
+            id: project.id,
+            title: project.title,
+            description: project.description,
+            status: project.status,
+            total_tasks: projectTasks.length,
+            completed_tasks: projectTasks.filter(
+              (t: TaskOverview) => t.status === "completed"
+            ).length,
+            in_progress_tasks: projectTasks.filter(
+              (t: TaskOverview) => t.status === "in_progress"
+            ).length,
+            initial_tasks: projectTasks.filter(
+              (t: TaskOverview) => t.status === "initial"
+            ).length,
+            completion_percentage:
+              projectTasks.length > 0
+                ? Math.round(
+                    (projectTasks.filter(
+                      (t: TaskOverview) => t.status === "completed"
+                    ).length /
+                      projectTasks.length) *
+                      100
+                  )
+                : 0,
+            tasks: projectTasks,
+          };
+        }
+      );
 
       setProjects(projectsWithTasks);
     } catch (err) {
@@ -157,10 +159,66 @@ export function OverviewNew() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-text">Project Overview</h1>
-        <div className="flex items-center justify-center py-12">
-          <div className="text-muted">Loading...</div>
+      <div className="space-y-6 animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-80"></div>
+          </div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-muted/20"
+            >
+              <div className="flex items-center justify-between">
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                </div>
+                <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Projects Skeleton */}
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-gray-800 rounded-lg border border-muted/20 overflow-hidden"
+            >
+              <div className="px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center space-x-4 flex-1">
+                  <div className="h-6 w-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-96"></div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-6">
+                  <div className="text-center space-y-1">
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 mx-auto"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                  </div>
+                  <div className="hidden sm:flex items-center space-x-4">
+                    {[1, 2, 3].map((j) => (
+                      <div key={j} className="text-center space-y-1">
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-8 mx-auto"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
