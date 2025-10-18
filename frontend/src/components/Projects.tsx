@@ -451,6 +451,7 @@ export function Projects() {
                                   ).toLocaleDateString("en-US", {
                                     month: "short",
                                     day: "numeric",
+                                    year: "numeric",
                                   })}
                                 </span>
                               </div>
@@ -464,6 +465,7 @@ export function Projects() {
                                   ).toLocaleDateString("en-US", {
                                     month: "short",
                                     day: "numeric",
+                                    year: "numeric",
                                   })}
                                 </span>
                               </div>

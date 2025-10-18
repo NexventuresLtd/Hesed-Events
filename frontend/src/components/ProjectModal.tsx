@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Save, Loader } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { apiService } from "../services/api";
@@ -28,9 +28,33 @@ export function ProjectModal({
     start_date: project?.start_date ? project.start_date.split("T")[0] : "",
     end_date: project?.end_date ? project.end_date.split("T")[0] : "",
   });
+  useEffect(() => {
+    if (project) {
+      setFormData({
+        title: project.title || "",
+        description: project.description || "",
+        status:
+          project.status ||
+          ("active" as "active" | "completed" | "planning" | "on_hold"),
+        parent_project: project.parent_project || "",
+        start_date: project.start_date ? project.start_date.split("T")[0] : "",
+        end_date: project.end_date ? project.end_date.split("T")[0] : "",
+      });
+    } else {
+      // Reset form when creating a new project
+      setFormData({
+        title: "",
+        description: "",
+        status: "active",
+        parent_project: "",
+        start_date: "",
+        end_date: "",
+      });
+    }
+  }, [project, isOpen]); // re-run whenever project or modal open state changes
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   // Get available parent projects (exclude current project if editing)
   const availableParentProjects = state.projects.filter(
     (p) => p.id !== project?.id && !p.is_sub_activity
