@@ -291,11 +291,11 @@ export function Tasks() {
               className="px-3 py-2 border border-muted/30 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-text dark:text-dark-text"
             >
               <option value="">All Assignees</option>
-              {
-                <option key={state.user?.id} value={state.user?.id.toString()}>
-                  {state.user?.first_name} {state.user?.last_name}
+              {state.users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name} ({user.role})
                 </option>
-              }
+              ))}
             </select>
           </div>
         </div>
@@ -564,7 +564,7 @@ export function Tasks() {
             setIsCommentsModalOpen(false);
             setCommentsTask(null);
           }}
-          taskId={commentsTask.id}
+          taskId={parseInt(commentsTask.id)}
           taskTitle={commentsTask.title}
         />
       )}

@@ -11,6 +11,7 @@ import type {
 
 interface AppState {
   user: User | null;
+  users: User[];
   projects: Project[];
   institutions: Institution[];
   tasks: Task[];
@@ -23,6 +24,7 @@ interface AppState {
 
 type AppAction =
   | { type: "SET_USER"; payload: User | null }
+  | { type: "SET_USERS"; payload: User[] }
   | { type: "SET_PROJECTS"; payload: Project[] }
   | { type: "SET_INSTITUTIONS"; payload: Institution[] }
   | { type: "SET_TASKS"; payload: Task[] }
@@ -37,6 +39,7 @@ type AppAction =
 
 const initialState: AppState = {
   user: null,
+  users: [],
   projects: [],
   institutions: [],
   tasks: [],
@@ -59,6 +62,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case "SET_USER":
       return { ...state, user: action.payload };
+    case "SET_USERS":
+      return { ...state, users: action.payload };
     case "SET_PROJECTS":
       return { ...state, projects: action.payload };
     case "SET_INSTITUTIONS":
@@ -151,11 +156,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "SET_LOADING", payload: true });
 
       // Load all data in parallel
-      const [projects, institutions, tasks, dashboardStats] = await Promise.all(
-        [
+      const [projects, institutions, tasks, users, dashboardStats] =
+        await Promise.all([
           apiService.getProjects().catch(() => []),
           apiService.getInstitutions().catch(() => []),
           apiService.getTasks().catch(() => []),
+          apiService.getUsers().catch(() => []),
           apiService.getDashboardStats().catch(() => ({
             totalProjects: 0,
             totalTasks: 0,
@@ -165,8 +171,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             institutionsCount: 0,
             activeUsers: 0,
           })),
-        ]
-      );
+        ]);
 
       // Convert backend data to frontend format
       const convertedProjects: Project[] =
@@ -217,6 +222,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           supervisorName: "Admin",
         })) || [];
 
+      const convertedUsers: User[] =
+        (users as any)?.results?.map((user: any) => ({
+          id: user.id.toString(),
+          username: user.username,
+          name: `${user.first_name} ${user.last_name}`.trim() || user.username,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          role: user.role as "admin" | "supervisor" | "employee" | "observer",
+          institutionId: user.institution?.toString() || undefined,
+          institutionName: user.institution_name || undefined,
+          phone: user.phone || undefined,
+          is_active: user.is_active,
+        })) || [];
+
       const convertedTasks: Task[] =
         (tasks as any)?.results?.map((task: any) => ({
           id: task.id.toString(),
@@ -246,6 +266,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "SET_PROJECTS", payload: convertedProjects });
       dispatch({ type: "SET_INSTITUTIONS", payload: convertedInstitutions });
       dispatch({ type: "SET_TASKS", payload: convertedTasks });
+      dispatch({ type: "SET_USERS", payload: convertedUsers });
 
       // Use real dashboard stats from backend
       const stats: DashboardStats = {

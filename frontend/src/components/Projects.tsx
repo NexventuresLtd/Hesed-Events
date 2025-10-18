@@ -11,6 +11,7 @@ import {
   Search,
   MessageSquare,
   GitBranch,
+  Trash2,
 } from "lucide-react";
 import { apiService } from "../services/api";
 import type { Task, Project } from "../types";
@@ -94,6 +95,50 @@ export function Projects() {
     e.stopPropagation();
     setCommentsTask(task);
     setIsCommentsModalOpen(true);
+  };
+
+  const handleDeleteProject = async (
+    projectId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    if (
+      !confirm(
+        "Are you sure you want to delete this project? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await apiService.deleteProject(parseInt(projectId));
+      await loadInitialData();
+      if (selectedProject === projectId) {
+        setSelectedProject(null);
+      }
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      alert("Failed to delete project");
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (
+      !confirm(
+        "Are you sure you want to delete this task? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await apiService.deleteTask(parseInt(taskId));
+      await loadInitialData();
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      alert("Failed to delete task");
+    }
   };
 
   const handleDragStart = (task: Task) => {
@@ -358,33 +403,38 @@ export function Projects() {
                     <div className="mt-3 pt-3 border-t border-muted/20 dark:border-dark-border">
                       <div className="flex space-x-2">
                         {state.user?.role === "admin" && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingProject(project);
-                              setIsProjectModalOpen(true);
-                            }}
-                            className="flex-1 px-3 py-1 bg-primary text-white text-sm rounded hover:bg-primary/90 transition-colors"
-                          >
-                            Edit
-                          </button>
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingProject(project);
+                                setIsProjectModalOpen(true);
+                              }}
+                              className="flex-1 px-3 py-1 bg-primary text-white text-sm rounded hover:bg-primary/80 cursor-pointer transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={(e) =>
+                                handleDeleteProject(project.id, e)
+                              }
+                              className="flex-1 px-3 py-1 border border-red-600 text-red-600 text-sm rounded hover:bg-red-700 hover:text-white cursor-pointer transition-colors flex items-center justify-center space-x-1"
+                            >
+                              <Trash2 size={14} />
+                              <span>Delete</span>
+                            </button>
+                          </>
                         )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedProject(project.id);
-                          }}
-                          className="flex-1 px-3 py-1 border border-primary text-primary text-sm rounded hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
-                        >
-                          View Tasks
-                        </button>
                       </div>
                     </div>
                   )}
                 </div>
 
                 {/* Sub-activities - Only show when parent is selected */}
-                {selectedProject === project.id &&
+                {(selectedProject === project.id ||
+                  project.sub_activities?.some(
+                    (sub) => sub.id === selectedProject
+                  )) &&
                   project.sub_activities &&
                   project.sub_activities.length > 0 && (
                     <div className="mt-3 ml-4 space-y-2">
@@ -474,16 +524,27 @@ export function Projects() {
 
                           {state.user?.role === "admin" && (
                             <div className="mt-2 pt-2 border-t border-muted/20 dark:border-dark-border">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditingProject(subProject);
-                                  setIsProjectModalOpen(true);
-                                }}
-                                className="w-full px-2 py-1 bg-primary text-white text-xs rounded hover:bg-primary/90 transition-colors"
-                              >
-                                Edit Sub-activity
-                              </button>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingProject(subProject);
+                                    setIsProjectModalOpen(true);
+                                  }}
+                                  className="flex-1 px-2 py-1 bg-primary text-white text-xs rounded hover:bg-primary/80 cursor-pointer transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={(e) =>
+                                    handleDeleteProject(subProject.id, e)
+                                  }
+                                  className="flex-1 cursor-pointer px-2 py-1 border border-red-600 text-red-600 text-xs rounded hover:bg-red-700 hover:text-white transition-colors flex items-center justify-center space-x-1"
+                                >
+                                  <Trash2 size={12} />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -581,13 +642,23 @@ export function Projects() {
                     onDragStart={handleDragStart}
                     isDragging={draggedTask?.id === task.id}
                   />
-                  <button
-                    onClick={(e) => handleCommentsClick(task, e)}
-                    className="absolute top-2 right-2 p-1.5 bg-white dark:bg-dark-bg rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary/10 dark:hover:bg-primary/20"
-                    title="View comments"
-                  >
-                    <MessageSquare size={16} className="text-primary" />
-                  </button>
+                  <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => handleCommentsClick(task, e)}
+                      className="p-1.5 bg-white text-primary hover:text-white dark:bg-dark-bg rounded-lg shadow-md hover:bg-primary dark:hover:bg-primary/20"
+                    >
+                      <MessageSquare size={16} />
+                    </button>
+                    {state.user?.role === "admin" && (
+                      <button
+                        onClick={(e) => handleDeleteTask(task.id, e)}
+                        className="p-1.5 bg-white dark:bg-dark-bg rounded-lg shadow-md hover:bg-red-50 dark:hover:bg-red-900/20"
+                        title="Delete task"
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
               {dragOverColumn === "initial" &&
@@ -657,13 +728,24 @@ export function Projects() {
                     onDragStart={handleDragStart}
                     isDragging={draggedTask?.id === task.id}
                   />
-                  <button
-                    onClick={(e) => handleCommentsClick(task, e)}
-                    className="absolute top-2 right-2 p-1.5 bg-white dark:bg-dark-bg rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary/10 dark:hover:bg-primary/20"
-                    title="View comments"
-                  >
-                    <MessageSquare size={16} className="text-primary" />
-                  </button>
+                  <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => handleCommentsClick(task, e)}
+                      className="p-1.5 bg-white text-primary hover:text-white dark:bg-dark-bg rounded-lg shadow-md hover:bg-primary dark:hover:bg-primary/20"
+                      title="View comments"
+                    >
+                      <MessageSquare size={16} />
+                    </button>
+                    {state.user?.role === "admin" && (
+                      <button
+                        onClick={(e) => handleDeleteTask(task.id, e)}
+                        className="p-1.5 bg-white dark:bg-dark-bg rounded-lg shadow-md hover:bg-red-50 dark:hover:bg-red-900/20"
+                        title="Delete task"
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
               {dragOverColumn === "in_progress" &&
@@ -733,13 +815,24 @@ export function Projects() {
                     onDragStart={handleDragStart}
                     isDragging={draggedTask?.id === task.id}
                   />
-                  <button
-                    onClick={(e) => handleCommentsClick(task, e)}
-                    className="absolute top-2 right-2 p-1.5 bg-white dark:bg-dark-bg rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary/10 dark:hover:bg-primary/20"
-                    title="View comments"
-                  >
-                    <MessageSquare size={16} className="text-primary" />
-                  </button>
+                  <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => handleCommentsClick(task, e)}
+                      className="p-1.5 bg-white text-primary hover:text-white dark:bg-dark-bg rounded-lg shadow-md hover:bg-primary dark:hover:bg-primary/20"
+                      title="View comments"
+                    >
+                      <MessageSquare size={16} />
+                    </button>
+                    {state.user?.role === "admin" && (
+                      <button
+                        onClick={(e) => handleDeleteTask(task.id, e)}
+                        className="p-1.5 bg-white dark:bg-dark-bg rounded-lg shadow-md hover:bg-red-50 dark:hover:bg-red-900/20"
+                        title="Delete task"
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
               {dragOverColumn === "completed" &&
@@ -892,7 +985,8 @@ export function Projects() {
             setIsCommentsModalOpen(false);
             setCommentsTask(null);
           }}
-          task={commentsTask}
+          taskId={parseInt(commentsTask.id)}
+          taskTitle={commentsTask.title}
         />
       )}
     </div>

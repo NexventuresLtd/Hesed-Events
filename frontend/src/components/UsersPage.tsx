@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { UserModal } from "./UserModal";
 import { apiService } from "../services/api";
@@ -13,44 +13,9 @@ export function UsersPage() {
   >("all");
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
-
-  // Load users from API on component mount
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const loadUsers = async () => {
-    try {
-      const fetchedUsers = await apiService.getUsers();
-
-      // Convert API users to frontend format
-      const convertedUsers: User[] = (fetchedUsers as any)?.results?.map(
-        (user: any) => ({
-          id: user.id.toString(),
-          username: user.username,
-          name: `${user.first_name} ${user.last_name}`.trim() || user.username,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          role: user.role,
-          institutionId: user.institution?.toString() || undefined,
-          institutionName: user.institution_name || undefined,
-          phone: user.phone || undefined,
-          is_active: user.is_active,
-        })
-      );
-
-      setUsers(convertedUsers);
-    } catch (err) {
-      console.error("Error loading users:", err);
-      // Fallback to current user if API fails
-      setUsers(state.user ? [state.user] : []);
-    }
-  };
 
   // Filter users
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = state.users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -69,8 +34,7 @@ export function UsersPage() {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await apiService.deleteUser(parseInt(userId));
-        await loadUsers(); // Reload users after deletion
-        await loadInitialData(); // Also refresh the app context
+        await loadInitialData(); // Refresh the app context to reload users
       } catch (error) {
         console.error("Error deleting user:", error);
         alert("Failed to delete user");

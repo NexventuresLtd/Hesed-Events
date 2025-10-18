@@ -253,9 +253,11 @@ export function TaskModal({
               className="w-full px-3 py-2 border border-muted/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             >
               <option value="">Unassigned</option>
-              {state.user && (
-                <option value={state.user.id}>{state.user.name}</option>
-              )}
+              {state.users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name} ({user.role})
+                </option>
+              ))}
             </select>
           </div>
 
