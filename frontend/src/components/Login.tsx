@@ -140,10 +140,10 @@ export function Login() {
                 <strong>Admin:</strong> admin / password
               </p>
               <p>
-                <strong>Supervisor:</strong> jane / password123
+                <strong>Supervisor:</strong> ikirezi / password123
               </p>
               <p>
-                <strong>Employee:</strong> tom / password123
+                <strong>Employee:</strong> supervisor / password
               </p>
             </div>
           </div>

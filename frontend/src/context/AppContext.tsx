@@ -205,6 +205,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               parent_project_title: sub.parent_project_title,
               is_sub_activity: true,
               sub_activities: [],
+              total_tasks: sub.total_tasks,
+              completed_tasks: sub.completed_tasks,
+              completion_rate: sub.completion_rate,
               start_date: sub.start_date,
               end_date: sub.end_date,
               tasks: [],
@@ -212,6 +215,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           start_date: project.start_date,
           end_date: project.end_date,
           tasks: [],
+          total_tasks: project.total_tasks,
+          completed_tasks: project.completed_tasks,
+          completion_rate: project.completion_rate,
         })) || [];
 
       const convertedInstitutions: Institution[] =

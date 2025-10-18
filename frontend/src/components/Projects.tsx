@@ -489,7 +489,7 @@ export function Projects() {
                             <div className="flex justify-between">
                               <span>Tasks:</span>
                               <span className="font-medium text-text dark:text-dark-text">
-                                {subProject.tasks?.length || 0}
+                                {subProject.total_tasks || 0}
                               </span>
                             </div>
                             {subProject.start_date && (
